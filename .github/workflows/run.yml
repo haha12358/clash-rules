@@ -41,8 +41,6 @@ jobs:
 
           echo "diy_direct=https://raw.githubusercontent.com/haha12358/DIY-rules/main/diy-direct.yaml" >> $GITHUB_ENV
           echo "diy_proxy=https://raw.githubusercontent.com/haha12358/DIY-rules/main/diy-proxy.yaml" >> $GITHUB_ENV
-          echo "ip_direct=https://raw.githubusercontent.com/haha12358/DIY-rules/main/ip-direct.yaml" >> $GITHUB_ENV
-          echo "ip_proxy=https://raw.githubusercontent.com/haha12358/DIY-rules/main/ip-proxy.yaml" >> $GITHUB_ENV
 
       - name: Checkout the "hidden" branch
         uses: actions/checkout@v4
@@ -163,29 +161,15 @@ jobs:
           curl -sSL "${fakeip_filter}" | sed "s/.*/  - '&'/" >> fakeip-filter.yaml
           ./mihomo convert-ruleset domain yaml fakeip-filter.yaml fakeip-filter.mrs
 
-      - name: Generate diy-direct.yaml and diy-direct.mrs
+      - name: Generate diy-direct.yaml
         shell: bash
         run: |
           curl -sSL "${diy_direct}" -o diy-direct.yaml
-          ./mihomo convert-ruleset domain yaml diy-direct.yaml diy-direct.mrs
 
-      - name: Generate diy-proxy.yaml and diy-proxy.mrs
+      - name: Generate diy-proxy.yaml
         shell: bash
         run: |
           curl -sSL "${diy_proxy}" -o diy-proxy.yaml
-          ./mihomo convert-ruleset domain yaml diy-proxy.yaml diy-proxy.mrs
-
-      - name: Generate ip-direct.yaml and ip-direct.mrs
-        shell: bash
-        run: |
-          curl -sSL "${ip_direct}" -o ip-direct.yaml
-          ./mihomo convert-ruleset ipcidr yaml ip-direct.yaml ip-direct.mrs
-
-      - name: Generate ip-proxy.yaml and ip-proxy.mrs
-        shell: bash
-        run: |
-          curl -sSL "${ip_proxy}" -o ip-proxy.yaml
-          ./mihomo convert-ruleset ipcidr yaml ip-proxy.yaml ip-proxy.mrs
 
       - name: Move files to publish directory
         shell: bash
