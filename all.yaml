@@ -1,0 +1,135 @@
+proxy-providers:
+  aaa:
+    url: ""
+    type: http
+    path: ./proxy_providers/aaa.yaml
+    interval: 86400
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+    proxy: DIRECT
+    header:
+      User-Agent:
+        - "mihomo"
+    override:
+      udp: true
+
+mixed-port: 7890
+allow-lan: false
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+log-level: info
+mode: rule
+find-process-mode: strict
+global-client-fingerprint: chrome
+
+# 移动设备省电
+# disable-keep-alive: false
+# keep-alive-idle: 15
+# keep-alive-interval: 15
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+
+dns:
+  enable: true
+  cache-algorithm: arc
+  listen: 0.0.0.0:1053
+  ipv6: false
+  respect-rules: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 28.0.0.1/8
+  fake-ip-filter-mode: blacklist
+  default-nameserver:
+    - https://223.5.5.5/dns-query
+  proxy-server-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  nameserver:
+    - https://8.8.8.8/dns-query#RULES&ecs=218.201.4.0/24
+  fake-ip-filter:
+    - "rule-set:fakeip-filter"
+
+proxy-groups:
+  - { name: '🚀 默认', type: select, proxies: ['🇭🇰 香港', '🇸🇬 新加坡', '🇯🇵 日本', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 所有'] }
+  - { name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动'], filter: "(?i)香港|hk|hongkong|hong kong" }
+  - { name: '🇸🇬 新加坡', type: select, include-all: true, proxies: ['♻️ 新加坡自动'], filter: "(?i)新加坡|sg|singapore" }
+  - { name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动'], filter: "(?i)日本|jp|japan" }
+  - { name: '🇨🇳 台湾', type: select, include-all: true, proxies: ['♻️ 台湾自动'], filter: "(?i)台湾|tw|taiwan" }
+  - { name: '🇺🇸 美国', type: select, include-all: true, proxies: ['♻️ 美国自动'], filter: "(?i)美国|us|unitedstates|united states" }
+  - { name: '🇺🇳 所有', type: select, include-all: true }
+  - { name: '➡️ 直连', type: select, proxies: [DIRECT, '🚀 默认'] }
+  - { name: '🏠 局域网', type: select, proxies: ['➡️ 直连', '🚀 默认'] }
+  - { name: '🐟️ 漏网之鱼', type: select, proxies: ['🚀 默认', '➡️ 直连'] }
+  - { name: '🚫 广告', type: select, proxies: [REJECT] }
+  - { name: '♻️ 香港自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)香港|hk|hongkong|hong kong" }
+  - { name: '♻️ 新加坡自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)新加坡|sg|singapore" }
+  - { name: '♻️ 日本自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)日本|jp|japan" }
+  - { name: '♻️ 台湾自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)台湾|tw|taiwan" }
+  - { name: '♻️ 美国自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)美国|us|unitedstates|united states" }
+
+rule-anchor:
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
+  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  class: &class {type: http, interval: 86400, behavior: classical, format: yaml}
+
+rule-providers:
+  fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/fakeip-filter.mrs", path: ./ruleset/fakeip-filter.mrs}
+  reject: {<<: *domain, url: "https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/mihomo.mrs", path: ./ruleset/reject.mrs}
+  icloud: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/icloud.mrs", path: ./ruleset/icloud.mrs}
+  apple: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/apple.mrs", path: ./ruleset/apple.mrs}
+  google: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/google.mrs", path: ./ruleset/google.mrs}
+  proxy: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/proxy.mrs", path: ./ruleset/proxy.mrs}
+  direct: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/direct.mrs", path: ./ruleset/direct.mrs}
+  private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/private.mrs", path: ./ruleset/private.mrs}
+
+  telegramcidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/telegramcidr.mrs", path: ./ruleset/telegramcidr.mrs}
+  cncidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/cncidr.mrs", path: ./ruleset/cncidr.mrs}
+  lancidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/lancidr.mrs", path: ./ruleset/lancidr.mrs}
+
+  applications: {<<: *class, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/applications.yaml", path: ./ruleset/applications.yaml}
+  diy-direct: {<<: *class, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/diy-direct.yaml", path: ./ruleset/diy-direct.yaml}
+  diy-proxy: {<<: *class, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/diy-proxy.yaml", path: ./ruleset/diy-proxy.yaml}
+
+rules:
+  - RULE-SET,applications,➡️ 直连
+  - DOMAIN,clash.razord.top,➡️ 直连
+  - DOMAIN,yacd.haishan.me,➡️ 直连
+
+  - RULE-SET,private,➡️ 直连
+  - RULE-SET,reject,🚫 广告
+
+  - RULE-SET,diy-direct,➡️ 直连
+  - RULE-SET,diy-proxy,🚀 默认
+
+  - RULE-SET,icloud,➡️ 直连
+  - RULE-SET,apple,➡️ 直连
+  - RULE-SET,google,🚀 默认
+
+  - RULE-SET,proxy,🚀 默认
+  - RULE-SET,direct,➡️ 直连
+  
+  - RULE-SET,lancidr,🏠 局域网,no-resolve
+  - RULE-SET,telegramcidr,🚀 默认,no-resolve
+  - RULE-SET,cncidr,➡️ 直连
+
+  - GEOIP,LAN,➡️ 直连
+  - GEOIP,CN,➡️ 直连
+
+  - MATCH,🐟️ 漏网之鱼
