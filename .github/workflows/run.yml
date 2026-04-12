@@ -39,13 +39,10 @@ jobs:
 
           echo "fakeip_filter=https://raw.githubusercontent.com/juewuy/ShellCrash/dev/public/fake_ip_filter.list" >> $GITHUB_ENV
 
-          echo "diy_direct=https://raw.githubusercontent.com/haha12358/DIY-rules/main/diy-direct.yaml" >> $GITHUB_ENV
-          echo "diy_proxy=https://raw.githubusercontent.com/haha12358/DIY-rules/main/diy-proxy.yaml" >> $GITHUB_ENV
-
       - name: Checkout the "hidden" branch
         uses: actions/checkout@v4
         with:
-          repository: Loyalsoldier/clash-rules
+          repository: haha12358/clash-rules
           ref: hidden
 
       - name: Download and unzip mihomo core
@@ -160,16 +157,6 @@ jobs:
           echo "payload:" > fakeip-filter.yaml
           curl -sSL "${fakeip_filter}" | sed "s/.*/  - '&'/" >> fakeip-filter.yaml
           ./mihomo convert-ruleset domain yaml fakeip-filter.yaml fakeip-filter.mrs
-
-      - name: Generate diy-direct.yaml
-        shell: bash
-        run: |
-          curl -sSL "${diy_direct}" -o diy-direct.yaml
-
-      - name: Generate diy-proxy.yaml
-        shell: bash
-        run: |
-          curl -sSL "${diy_proxy}" -o diy-proxy.yaml
 
       - name: Move files to publish directory
         shell: bash
