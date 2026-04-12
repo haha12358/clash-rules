@@ -9,3 +9,5 @@ payload:
   - 'DOMAIN,anti-ad.net'
   - 'DOMAIN-SUFFIX,haitunt.org'
   - 'DOMAIN-SUFFIX,steambk.com'
+  - 'PROCESS-NAME,avp.exe'
+  - 'PROCESS-NAME,kpm.exe'
