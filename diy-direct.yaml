@@ -13,3 +13,4 @@ payload:
   - 'PROCESS-NAME,kpm.exe'
   - 'PROCESS-NAME,com.kaspersky.passwordmanager'
   - 'PROCESS-NAME,com.kms.free'
+  - 'DOMAIN-KEYWORD,kaspersky'
