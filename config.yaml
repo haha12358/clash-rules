@@ -9,9 +9,6 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 300
     proxy: DIRECT
-    header:
-      User-Agent:
-        - "mihomo"
     override:
       udp: true
 
@@ -20,19 +17,27 @@ allow-lan: false
 ipv6: false
 unified-delay: true
 tcp-concurrent: true
-log-level: info
-mode: rule
-find-process-mode: strict
+log-level: warning
 global-client-fingerprint: chrome
-
-# 移动设备省电
-# disable-keep-alive: false
-# keep-alive-idle: 15
-# keep-alive-interval: 15
-
+keep-alive-idle: 600
+keep-alive-interval: 15
 profile:
   store-selected: true
   store-fake-ip: true
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "Mijia Cloud"
+    - "+.push.apple.com"
 
 tun:
   enable: true
@@ -67,13 +72,13 @@ dns:
     - "rule-set:fakeip-filter"
 
 proxy-groups:
-  - { name: '🚀 默认', type: select, proxies: ['🇭🇰 香港', '🇸🇬 新加坡', '🇯🇵 日本', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 所有'] }
-  - { name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动'], filter: "(?i)香港|hk|hongkong|hong kong" }
-  - { name: '🇸🇬 新加坡', type: select, include-all: true, proxies: ['♻️ 新加坡自动'], filter: "(?i)新加坡|sg|singapore" }
-  - { name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动'], filter: "(?i)日本|jp|japan" }
-  - { name: '🇨🇳 台湾', type: select, include-all: true, proxies: ['♻️ 台湾自动'], filter: "(?i)台湾|tw|taiwan" }
-  - { name: '🇺🇸 美国', type: select, include-all: true, proxies: ['♻️ 美国自动'], filter: "(?i)美国|us|unitedstates|united states" }
-  - { name: '🇺🇳 所有', type: select, include-all: true }
+  - { name: '🚀 默认', type: select, proxies: ['🇭🇰 香港', '🇸🇬 新加坡', '🇯🇵 日本', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部'] }
+  - { name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动','🔯 香港故转'], filter: "(?i)香港|hk|hongkong|hong kong" }
+  - { name: '🇸🇬 新加坡', type: select, include-all: true, proxies: ['♻️ 新加坡自动','🔯 新加坡故转'], filter: "(?i)新加坡|sg|singapore" }
+  - { name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动','🔯 日本故转'], filter: "(?i)日本|jp|japan" }
+  - { name: '🇨🇳 台湾', type: select, include-all: true, proxies: ['♻️ 台湾自动','🔯 台湾故转'], filter: "(?i)台湾|tw|taiwan" }
+  - { name: '🇺🇸 美国', type: select, include-all: true, proxies: ['♻️ 美国自动','🔯 美国故转'], filter: "(?i)美国|us|unitedstates|united states" }
+  - { name: '🇺🇳 全部', type: select, include-all: true, proxies: ['♻️ 自动选择','🔯 故障转移'] }
   - { name: '➡️ 直连', type: select, proxies: [DIRECT, '🚀 默认'] }
   - { name: '🏠 局域网', type: select, proxies: ['➡️ 直连', '🚀 默认'] }
   - { name: '🐟️ 漏网之鱼', type: select, proxies: ['🚀 默认', '➡️ 直连'] }
@@ -83,6 +88,13 @@ proxy-groups:
   - { name: '♻️ 日本自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)日本|jp|japan" }
   - { name: '♻️ 台湾自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)台湾|tw|taiwan" }
   - { name: '♻️ 美国自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)美国|us|unitedstates|united states" }
+  - { name: '♻️ 自动选择', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300}
+  - { name: '🔯 香港故转', type: fallback, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)香港|hk|hongkong|hong kong" }
+  - { name: '🔯 新加坡故转', type: fallback, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)新加坡|sg|singapore" }
+  - { name: '🔯 日本故转', type: fallback, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)日本|jp|japan" }
+  - { name: '🔯 台湾故转', type: fallback, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)台湾|tw|taiwan" }
+  - { name: '🔯 美国故转', type: fallback, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)美国|us|unitedstates|united states" }
+  - { name: '🔯 故障转移', type: fallback, include-all: true, hidden: true, tolerance: 20, interval: 300 }
 
 rule-anchor:
   domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
