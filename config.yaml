@@ -1,6 +1,6 @@
 proxy-providers:
   aaa:
-    url: ""
+    url: "订阅"
     type: http
     path: ./proxy_providers/aaa.yaml
     interval: 86400
@@ -11,6 +11,7 @@ proxy-providers:
     proxy: DIRECT
     override:
       udp: true
+      additional-prefix: '[名字]'
 
 mixed-port: 7890
 allow-lan: false
@@ -84,8 +85,8 @@ proxy-groups:
   - { name: '➡️ 直连', type: select, proxies: [DIRECT, '🚀 默认'] }
   - { name: '🏠 局域网', type: select, proxies: ['➡️ 直连', '🚀 默认'] }
   - { name: '🐟️ 漏网之鱼', type: select, proxies: ['🚀 默认', '➡️ 直连'] }
-  - { name: '🚫 广告', type: select, proxies: [REJECT] }
-  - { name: '😄 低倍率', type: select, include-all: true, filter: "(?i)实验|低" }
+  - { name: '🚫 广告', type: select, proxies: [REJECT,REJECT-DROP] }
+  - { name: '😄 低倍率', type: select, include-all: true, filter: "(?i)实验|低|0\\." }
   - { name: '♻️ 香港自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)香港|hk|hongkong|hong kong" }
   - { name: '♻️ 新加坡自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)新加坡|sg|singapore" }
   - { name: '♻️ 日本自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)日本|jp|japan" }
@@ -113,6 +114,7 @@ rule-providers:
   proxy: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/proxy.mrs", path: ./ruleset/proxy.mrs}
   direct: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/direct.mrs", path: ./ruleset/direct.mrs}
   ai: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-!cn.mrs", path: ./ruleset/ai.mrs}
+  github: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.mrs", path: ./ruleset/github.mrs}  #GitHubCopilot插件使用AI规则的节点会网络错误
   entertainment: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-entertainment.mrs", path: ./ruleset/entertainment.mrs}
   private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/private.mrs", path: ./ruleset/private.mrs}
 
@@ -135,6 +137,7 @@ rules:
   - RULE-SET,diy-direct,➡️ 直连
   - RULE-SET,diy-proxy,🚀 默认
 
+  - RULE-SET,github,🚀 默认
   - RULE-SET,ai,🤖 AI
   - RULE-SET,entertainment,🎬 流媒体
   - RULE-SET,icloud,➡️ 直连
