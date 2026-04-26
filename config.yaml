@@ -74,6 +74,7 @@ dns:
 proxy-groups:
   - { name: '🚀 默认', type: select, proxies: ['🇭🇰 香港', '🇸🇬 新加坡', '🇯🇵 日本', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部'] }
   - { name: '🤖 AI', type: select, include-all: true, filter: "(?i)日本|美国" }
+  - { name: '🎬 流媒体', type: select, include-all: true, proxies: ['😄 低倍率', '♻️ 自动选择'] }
   - { name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动','🔯 日本故转'], filter: "(?i)日本|jp|japan" }
   - { name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动','🔯 香港故转'], filter: "(?i)香港|hk|hongkong|hong kong" }
   - { name: '🇸🇬 新加坡', type: select, include-all: true, proxies: ['♻️ 新加坡自动','🔯 新加坡故转'], filter: "(?i)新加坡|sg|singapore" }
@@ -84,6 +85,7 @@ proxy-groups:
   - { name: '🏠 局域网', type: select, proxies: ['➡️ 直连', '🚀 默认'] }
   - { name: '🐟️ 漏网之鱼', type: select, proxies: ['🚀 默认', '➡️ 直连'] }
   - { name: '🚫 广告', type: select, proxies: [REJECT] }
+  - { name: '😄 低倍率', type: select, include-all: true, filter: "(?i)实验|低" }
   - { name: '♻️ 香港自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)香港|hk|hongkong|hong kong" }
   - { name: '♻️ 新加坡自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)新加坡|sg|singapore" }
   - { name: '♻️ 日本自动', type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, filter: "(?i)日本|jp|japan" }
@@ -111,6 +113,7 @@ rule-providers:
   proxy: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/proxy.mrs", path: ./ruleset/proxy.mrs}
   direct: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/direct.mrs", path: ./ruleset/direct.mrs}
   ai: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-!cn.mrs", path: ./ruleset/ai.mrs}
+  entertainment: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-entertainment.mrs", path: ./ruleset/entertainment.mrs}
   private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/private.mrs", path: ./ruleset/private.mrs}
 
   telegramcidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/telegramcidr.mrs", path: ./ruleset/telegramcidr.mrs}
@@ -133,6 +136,7 @@ rules:
   - RULE-SET,diy-proxy,🚀 默认
 
   - RULE-SET,ai,🤖 AI
+  - RULE-SET,entertainment,🎬 流媒体
   - RULE-SET,icloud,➡️ 直连
   - RULE-SET,apple,➡️ 直连
   - RULE-SET,google,🚀 默认
