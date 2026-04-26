@@ -74,7 +74,7 @@ dns:
 
 proxy-groups:
   - { name: '🚀 默认', type: select, proxies: ['🇭🇰 香港', '🇸🇬 新加坡', '🇯🇵 日本', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部'] }
-  - { name: '🤖 AI', type: select, include-all: true, filter: "(?i)日本|美国" }
+  - { name: '🤖 AI', type: select, include-all: true, filter: "(?i)日本|jp|japan|美国|us|unitedstates|united states" }
   - { name: '🎬 流媒体', type: select, include-all: true, proxies: ['😄 低倍率', '♻️ 自动选择'] }
   - { name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动','🔯 日本故转'], filter: "(?i)日本|jp|japan" }
   - { name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动','🔯 香港故转'], filter: "(?i)香港|hk|hongkong|hong kong" }
