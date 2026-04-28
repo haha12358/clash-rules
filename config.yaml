@@ -20,15 +20,6 @@ proxy-providers:
     override:
       <<: *override
       additional-prefix: '[a1]'
-  # a2:
-  #   <<: *base
-  #   url: ""
-  #   path: ./proxy_providers/a2.yaml
-  #   health-check:
-  #     <<: *health-check
-  #   override:
-  #     <<: *override
-  #     additional-prefix: '[a2]'
 
 mixed-port: 7890
 allow-lan: false
@@ -100,14 +91,14 @@ proxy-group-anchor:
 
 proxy-groups:
   - { name: '🚀 默认', type: select, proxies: ['🇭🇰 香港', '🇸🇬 新加坡', '🇯🇵 日本', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部'] }
-  - { name: '🤖 AI', type: select, include-all: true, filter: "(?i)日本|jp|japan|美国|us|unitedstates|united states" }
-  - { name: '🎬 流媒体', type: select, include-all: true, proxies: ['😄 低倍率', '♻️ 自动选择'] }
-  - { name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动', '♻️ [a1]日本', '🔯 日本故转'], filter: "(?i)日本|jp|japan" } #[a2]自己加
-  - { name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动', '♻️ [a1]香港', '🔯 香港故转'], filter: "(?i)香港|hk|hongkong|hong kong" }
-  - { name: '🇸🇬 新加坡', type: select, include-all: true, proxies: ['♻️ 新加坡自动', '♻️ [a1]新加坡', '🔯 新加坡故转'], filter: "(?i)新加坡|sg|singapore" }
-  - { name: '🇨🇳 台湾', type: select, include-all: true, proxies: ['♻️ 台湾自动', '♻️ [a1]台湾', '🔯 台湾故转'], filter: "(?i)台湾|tw|taiwan" }
-  - { name: '🇺🇸 美国', type: select, include-all: true, proxies: ['♻️ 美国自动', '♻️ [a1]美国', '🔯 美国故转'], filter: "(?i)美国|us|unitedstates|united states" }
-  - { name: '🇺🇳 全部', type: select, include-all: true, proxies: ['♻️ 自动选择','🔯 故障转移'] }
+  - { name: '🤖 AI', type: select, include-all: true, proxies: ['🚀 默认'], filter: "(?i)日本|jp|japan|美国|us|unitedstates|united states" }
+  - { name: '🎬 流媒体', type: select, proxies: ['😄 低倍率', '🚀 默认', '♻️ 自动选择'] }
+  - { name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动'], filter: *jp }
+  - { name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动'], filter: *hk }
+  - { name: '🇸🇬 新加坡', type: select, include-all: true, proxies: ['♻️ 新加坡自动'], filter: *sg }
+  - { name: '🇨🇳 台湾', type: select, include-all: true, proxies: ['♻️ 台湾自动'], filter: *tw }
+  - { name: '🇺🇸 美国', type: select, include-all: true, proxies: ['♻️ 美国自动'], filter: *us }
+  - { name: '🇺🇳 全部', type: select, include-all: true, proxies: ['♻️ 自动选择'] }
   - { name: '➡️ 直连', type: select, proxies: [DIRECT, '🚀 默认'] }
   - { name: '🏠 局域网', type: select, proxies: ['➡️ 直连', '🚀 默认'] }
   - { name: '🐟️ 漏网之鱼', type: select, proxies: ['🚀 默认', '➡️ 直连'] }
@@ -119,24 +110,6 @@ proxy-groups:
   - { name: '♻️ 台湾自动', <<: *url-test, filter: *tw }
   - { name: '♻️ 美国自动', <<: *url-test, filter: *us }
   - { name: '♻️ 自动选择', <<: *url-test }
-  - { name: '🔯 香港故转', <<: *fallback, filter: *hk }
-  - { name: '🔯 新加坡故转', <<: *fallback, filter: *sg }
-  - { name: '🔯 日本故转', <<: *fallback, filter: *jp }
-  - { name: '🔯 台湾故转', <<: *fallback, filter: *tw }
-  - { name: '🔯 美国故转', <<: *fallback, filter: *us }
-  - { name: '🔯 故障转移', <<: *fallback }
-
-  - { name: '♻️ [a1]香港', <<: *url-test, include-all: false, use: [a1], filter: *hk }
-  - { name: '♻️ [a1]新加坡', <<: *url-test, include-all: false, use: [a1], filter: *sg }
-  - { name: '♻️ [a1]日本', <<: *url-test, include-all: false, use: [a1], filter: *jp }
-  - { name: '♻️ [a1]台湾', <<: *url-test, include-all: false, use: [a1], filter: *tw }
-  - { name: '♻️ [a1]美国', <<: *url-test, include-all: false, use: [a1], filter: *us }
-
-  # - { name: '♻️ [a2]香港', <<: *url-test, include-all: false, use: [a2], filter: *hk }
-  # - { name: '♻️ [a2]新加坡', <<: *url-test, include-all: false, use: [a2], filter: *sg }
-  # - { name: '♻️ [a2]日本', <<: *url-test, include-all: false, use: [a2], filter: *jp }
-  # - { name: '♻️ [a2]台湾', <<: *url-test, include-all: false, use: [a2], filter: *tw }
-  # - { name: '♻️ [a2]美国', <<: *url-test, include-all: false, use: [a2], filter: *us }
 
 rule-anchor:
   domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
