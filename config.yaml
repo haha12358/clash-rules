@@ -1,25 +1,16 @@
-proxy-provider-anchor:
-  base: &base
+proxy-providers:
+  FlowerCloud:
+    url: ""
     type: http
     interval: 86400
     proxy: DIRECT
-  health-check: &health-check
-    enable: true
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-  override: &override
-    udp: true
-
-proxy-providers:
-  a1:
-    <<: *base
-    url: ""
-    path: ./proxy_providers/a1.yaml
+    path: ./proxy_providers/FlowerCloud.yaml
     health-check:
-      <<: *health-check
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
     override:
-      <<: *override
-      additional-prefix: '[a1]'
+      udp: true
 
 mixed-port: 7890
 allow-lan: false
@@ -81,17 +72,16 @@ dns:
     - "rule-set:fakeip-filter"
 
 proxy-group-anchor:
-  hk: &hk "(?i)香港|hk|hongkong|hong kong"
+  hk: &hk "(?i)香港|hk|hong ?kong"
   sg: &sg "(?i)新加坡|sg|singapore"
   jp: &jp "(?i)日本|jp|japan"
   tw: &tw "(?i)台湾|tw|taiwan"
-  us: &us "(?i)美国|us|unitedstates|united states"
-  url-test: &url-test {type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300}
-  fallback: &fallback {type: fallback, include-all: true, hidden: true, tolerance: 20, interval: 300}
+  us: &us "(?i)美国|us|usa|united ?states"
+  url-test: &url-test {type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300, expected-status: 204, lazy: true }
 
 proxy-groups:
   - { name: '🚀 默认', type: select, proxies: ['🇭🇰 香港', '🇸🇬 新加坡', '🇯🇵 日本', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部'] }
-  - { name: '🤖 AI', type: select, include-all: true, proxies: ['🚀 默认'], filter: "(?i)日本|jp|japan|美国|us|unitedstates|united states" }
+  - { name: '🤖 AI', type: select, include-all: true, proxies: ['🚀 默认'], filter: "(?i)高级" }
   - { name: '🎬 流媒体', type: select, proxies: ['😄 低倍率', '🚀 默认', '♻️ 自动选择'] }
   - { name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动'], filter: *jp }
   - { name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动'], filter: *hk }
@@ -99,9 +89,9 @@ proxy-groups:
   - { name: '🇨🇳 台湾', type: select, include-all: true, proxies: ['♻️ 台湾自动'], filter: *tw }
   - { name: '🇺🇸 美国', type: select, include-all: true, proxies: ['♻️ 美国自动'], filter: *us }
   - { name: '🇺🇳 全部', type: select, include-all: true, proxies: ['♻️ 自动选择'] }
-  - { name: '➡️ 直连', type: select, proxies: [DIRECT, '🚀 默认'] }
-  - { name: '🏠 局域网', type: select, proxies: ['➡️ 直连', '🚀 默认'] }
-  - { name: '🐟️ 漏网之鱼', type: select, proxies: ['🚀 默认', '➡️ 直连'] }
+  - { name: '➡️ 直连', type: select, proxies: [DIRECT] , hidden: true }
+  - { name: '🏠 局域网', type: select, proxies: ['➡️ 直连'], hidden: true }
+  - { name: '🐟️ 漏网之鱼', type: select, proxies: ['😄 低倍率', '🚀 默认', '➡️ 直连'] }
   - { name: '🚫 广告', type: select, proxies: [REJECT, REJECT-DROP] }
   - { name: '😄 低倍率', type: select, include-all: true, filter: "(?i)实验|低|×0\\." }
   - { name: '♻️ 香港自动', <<: *url-test, filter: *hk }
