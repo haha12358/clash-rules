@@ -2,7 +2,7 @@ payload:
   - DOMAIN-SUFFIX,scriptcat.org
   - DOMAIN-SUFFIX,muketool.com
   - DOMAIN,download-cdn.jetbrains.com
-  - DOMAIN-SUFFIX,download.nvidia.com
+  # - DOMAIN-SUFFIX,download.nvidia.com
   - DOMAIN-SUFFIX,heytapmobile.com
   - DOMAIN-SUFFIX,darkreader.org
   - DOMAIN,anti-ad.net
