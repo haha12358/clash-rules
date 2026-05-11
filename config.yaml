@@ -1,10 +1,10 @@
 proxy-providers:
-  FlowerCloud:
+  aaa:
     url: ""
     type: http
     interval: 86400
     proxy: DIRECT
-    path: ./proxy_providers/FlowerCloud.yaml
+    path: ./proxy_providers/aaa.yaml
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
@@ -82,7 +82,7 @@ proxy-group-anchor:
 proxy-groups:
   - { name: '🚀 默认', type: select, proxies: ['🇭🇰 香港', '🇸🇬 新加坡', '🇯🇵 日本', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部'] }
   - { name: '🤖 AI', type: select, include-all: true, proxies: ['🚀 默认'], filter: "(?i)高级" }
-  - { name: '🎬 流媒体', type: select, proxies: ['😄 低倍率', '🚀 默认', '♻️ 自动选择'] }
+  - { name: '🎬 娱乐', type: select, proxies: ['😄 低倍率', '🚀 默认', '♻️ 自动选择'] }
   - { name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动'], filter: *jp }
   - { name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动'], filter: *hk }
   - { name: '🇸🇬 新加坡', type: select, include-all: true, proxies: ['♻️ 新加坡自动'], filter: *sg }
@@ -128,8 +128,6 @@ rule-providers:
 
 rules:
   - RULE-SET,applications,➡️ 直连
-  - DOMAIN,clash.razord.top,➡️ 直连
-  - DOMAIN,yacd.haishan.me,➡️ 直连
 
   - RULE-SET,private,➡️ 直连
   - RULE-SET,reject,🚫 广告
@@ -138,7 +136,7 @@ rules:
   - RULE-SET,diy-proxy,🚀 默认
 
   - RULE-SET,ai,🤖 AI
-  - RULE-SET,entertainment,🎬 流媒体
+  - RULE-SET,entertainment,🎬 娱乐
   - RULE-SET,icloud,➡️ 直连
   - RULE-SET,apple,➡️ 直连
   - RULE-SET,google,🚀 默认
@@ -147,10 +145,7 @@ rules:
   - RULE-SET,direct,➡️ 直连
   
   - RULE-SET,lancidr,🏠 局域网,no-resolve
-  - RULE-SET,telegramcidr,🚀 默认,no-resolve
+  - RULE-SET,telegramcidr,😄 低倍率,no-resolve
   - RULE-SET,cncidr,➡️ 直连
-
-  - GEOIP,LAN,➡️ 直连
-  - GEOIP,CN,➡️ 直连
 
   - MATCH,🐟️ 漏网之鱼
