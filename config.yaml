@@ -108,7 +108,7 @@ rule-anchor:
 
 rule-providers:
   fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/fakeip-filter.mrs", path: ./ruleset/fakeip-filter.mrs}
-  reject: {<<: *domain, url: "https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/mihomo.mrs", path: ./ruleset/reject.mrs}
+  reject: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/reject.mrs", path: ./ruleset/reject.mrs}
   icloud: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/icloud.mrs", path: ./ruleset/icloud.mrs}
   apple: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/apple.mrs", path: ./ruleset/apple.mrs}
   google: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/google.mrs", path: ./ruleset/google.mrs}
