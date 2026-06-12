@@ -6,7 +6,7 @@ payload:
   - DOMAIN-SUFFIX,heytapmobile.com
   - DOMAIN-SUFFIX,darkreader.org
   - DOMAIN,anti-ad.net
-  - DOMAIN-SUFFIX,haitunt.org
+  # - DOMAIN-SUFFIX,haitunt.org
   - DOMAIN-SUFFIX,steambk.com
   - DOMAIN-SUFFIX,transmission.eu.org
   - DOMAIN-SUFFIX,transmission3.eu.org
