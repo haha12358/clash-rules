@@ -1,3 +1,2 @@
 payload:
   - IP-CIDR,8.8.8.8/32,no-resolve
-  - DOMAIN-SUFFIX,githubcopilot.com  #包含在category-ai-!cn里，但使用不同节点会网络错误
