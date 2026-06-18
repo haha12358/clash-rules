@@ -40,7 +40,7 @@ jobs:
           echo "fakeip_filter=https://raw.githubusercontent.com/juewuy/ShellCrash/dev/public/fake_ip_filter.list" >> $GITHUB_ENV
 
       - name: Checkout the "hidden" branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: haha12358/clash-rules
           ref: hidden
