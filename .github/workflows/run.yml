@@ -101,7 +101,7 @@ jobs:
       - name: Generate reject.yaml and reject.mrs
         shell: bash
         run: |
-          # echo "payload:" > reject.yaml
+          echo "payload:" > reject.yaml
           curl -sSL "${neodevhost_clash}" | grep -Ev "^(regexp|keyword):" | perl -ne '/^(domain:|full:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> reject.yaml
           ./mihomo convert-ruleset domain yaml reject.yaml reject.mrs
 
