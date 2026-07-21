@@ -1,5 +1,4 @@
 name: Generate RULE-SET for Mihomo
-
 on:
   workflow_dispatch:
   schedule:
@@ -9,164 +8,142 @@ on:
       - master
     paths-ignore:
       - "**/README.md"
-
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Set variables
-        shell: bash
         run: |
-          echo "BUILD_NAME=Updated on $(date +%Y%m%d%H%M)" >> $GITHUB_ENV
-
+          echo "RELEASE_NAME=Released on $(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+          echo "TAG_NAME=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
           echo "custom_icloud=https://raw.githubusercontent.com/Loyalsoldier/domain-list-custom/release/icloud.txt" >> $GITHUB_ENV
           echo "custom_tld_not_cn=https://raw.githubusercontent.com/Loyalsoldier/domain-list-custom/release/tld-!cn.txt" >> $GITHUB_ENV
           echo "custom_private=https://raw.githubusercontent.com/Loyalsoldier/domain-list-custom/release/private.txt" >> $GITHUB_ENV
-
           echo "Loyalsoldier_reject=https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/reject-list.txt" >> $GITHUB_ENV
           echo "Loyalsoldier_proxy=https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/proxy-list.txt" >> $GITHUB_ENV
           echo "Loyalsoldier_direct=https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/direct-list.txt" >> $GITHUB_ENV
           echo "Loyalsoldier_gfw=https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/gfw.txt" >> $GITHUB_ENV
           echo "Loyalsoldier_greatfire=https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/greatfire.txt" >> $GITHUB_ENV
-
           echo "felixonmars_apple=https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/apple.china.conf" >> $GITHUB_ENV
           echo "felixonmars_google=https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/google.china.conf" >> $GITHUB_ENV
-
           echo "cn_cidr=https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/cn.txt" >> $GITHUB_ENV
           echo "lan_cidr=https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/private.txt" >> $GITHUB_ENV
           echo "telegram_cidr=https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/telegram.txt" >> $GITHUB_ENV
-
           echo "fakeip_filter=https://raw.githubusercontent.com/juewuy/ShellCrash/dev/public/fake_ip_filter.list" >> $GITHUB_ENV
+        shell: bash
 
       - name: Checkout the "hidden" branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
-          repository: haha12358/clash-rules
+          repository: Loyalsoldier/clash-rules
           ref: hidden
 
-      - name: Download and unzip mihomo core
-        shell: bash
+      - name: Download and unzip `mihomo core`
         run: |
           mihomo_version=$(curl -sSL https://api.github.com/repos/MetaCubeX/mihomo/releases | grep 'tag_name' | grep -v 'Alpha' | head -n 1 | sed -e 's/.*v/v/' -e 's/".*//')
           curl -sSL "https://github.com/MetaCubeX/mihomo/releases/download/${mihomo_version}/mihomo-linux-amd64-${mihomo_version}.gz" | gzip -d > ./mihomo
           chmod +x ./mihomo
 
-      - name: Generate icloud.yaml and icloud.mrs
-        shell: bash
+      - name: Generate icloud.txt file
         run: |
           echo "payload:" > icloud.yaml
-          curl -sSL "${custom_icloud}" | grep -E "^(full|domain):" | awk -F ':' '{printf "  - |+.%s|\n", $2}' | sed "s/|/'/g" >> icloud.yaml
+          curl -sSL ${custom_icloud} | grep -E "^(full|domain):" | awk -F ':' '{printf "  - |+.%s|\n", $2}' | sed "s/|/'/g" >> icloud.yaml
           ./mihomo convert-ruleset domain yaml icloud.yaml icloud.mrs
 
-      - name: Generate google.yaml and google.mrs
-        shell: bash
+      - name: Generate google.txt file
         run: |
           echo "payload:" > google.yaml
-          curl -sSL "${felixonmars_google}" | perl -ne '/^server=\/([^\/]+)\// && print "  - |+.$1|\n"' | sed "s/|/'/g" >> google.yaml
+          curl -sSL ${felixonmars_google} | perl -ne '/^server=\/([^\/]+)\// && print "  - |+.$1|\n"' | sed "s/|/'/g" >> google.yaml
           ./mihomo convert-ruleset domain yaml google.yaml google.mrs
 
-      - name: Generate apple.yaml and apple.mrs
-        shell: bash
+      - name: Generate apple.txt file
         run: |
           echo "payload:" > apple.yaml
-          curl -sSL "${felixonmars_apple}" | perl -ne '/^server=\/([^\/]+)\// && print "  - |+.$1|\n"' | sed "s/|/'/g" >> apple.yaml
+          curl -sSL ${felixonmars_apple} | perl -ne '/^server=\/([^\/]+)\// && print "  - |+.$1|\n"' | sed "s/|/'/g" >> apple.yaml
           ./mihomo convert-ruleset domain yaml apple.yaml apple.mrs
 
-      - name: Generate private.yaml and private.mrs
-        shell: bash
+      - name: Generate private.txt file
         run: |
           echo "payload:" > private.yaml
-          curl -sSL "${custom_private}" | awk -F ':' '/^full:/ {printf "  - |%s|\n", $2}' | sed "s/|/'/g" >> private.yaml
-          curl -sSL "${custom_private}" | awk -F ':' '/^domain:/ {printf "  - |+.%s|\n", $2}' | sed "s/|/'/g" >> private.yaml
+          curl -sSL ${custom_private} | awk -F ':' '/^full:/ {printf "  - |%s|\n", $2}' | sed "s/|/'/g" >> private.yaml
+          curl -sSL ${custom_private} | awk -F ':' '/^domain:/ {printf "  - |+.%s|\n", $2}' | sed "s/|/'/g" >> private.yaml
           ./mihomo convert-ruleset domain yaml private.yaml private.mrs
 
-      - name: Generate direct.yaml and direct.mrs
-        shell: bash
+      - name: Generate direct.txt file
         run: |
           echo "payload:" > direct.yaml
-          curl -sSL "${Loyalsoldier_direct}" | grep -Ev "^(regexp|keyword):" | perl -ne '/^(full:)([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |$2|\n"' | sed "s/|/'/g" >> direct.yaml
-          curl -sSL "${Loyalsoldier_direct}" | grep -Ev "^(regexp|keyword|full):" | perl -ne '/^(domain:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> direct.yaml
+          curl -sSL ${Loyalsoldier_direct} | grep -Ev "^(regexp|keyword):" | perl -ne '/^(full:)([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |$2|\n"' | sed "s/|/'/g" >> direct.yaml
+          curl -sSL ${Loyalsoldier_direct} | grep -Ev "^(regexp|keyword|full):" | perl -ne '/^(domain:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> direct.yaml
           ./mihomo convert-ruleset domain yaml direct.yaml direct.mrs
 
-      - name: Generate proxy.yaml and proxy.mrs
-        shell: bash
+      - name: Generate proxy.txt file
         run: |
           echo "payload:" > proxy.yaml
-          curl -sSL "${Loyalsoldier_proxy}" | grep -Ev "^(regexp|keyword):" | perl -ne '/^(full:)([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |$2|\n"' | sed "s/|/'/g" >> proxy.yaml
-          curl -sSL "${Loyalsoldier_proxy}" | grep -Ev "^(regexp|keyword|full):" | perl -ne '/^(domain:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> proxy.yaml
+          curl -sSL ${Loyalsoldier_proxy} | grep -Ev "^(regexp|keyword):" | perl -ne '/^(full:)([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |$2|\n"' | sed "s/|/'/g" >> proxy.yaml
+          curl -sSL ${Loyalsoldier_proxy} | grep -Ev "^(regexp|keyword|full):" | perl -ne '/^(domain:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> proxy.yaml
           ./mihomo convert-ruleset domain yaml proxy.yaml proxy.mrs
 
-      - name: Generate reject.yaml and reject.mrs
-        shell: bash
+      - name: Generate reject.txt file
         run: |
           echo "payload:" > reject.yaml
-          curl -sSL "${Loyalsoldier_reject}" | grep -Ev "^(regexp|keyword):" | perl -ne '/^(domain:|full:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> reject.yaml
+          curl -sSL ${Loyalsoldier_reject} | grep -Ev "^(regexp|keyword):" | perl -ne '/^(domain:|full:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> reject.yaml
           ./mihomo convert-ruleset domain yaml reject.yaml reject.mrs
 
-      - name: Generate gfw.yaml and gfw.mrs
-        shell: bash
+      - name: Generate gfw.txt file
         run: |
           echo "payload:" > gfw.yaml
-          curl -sSL "${Loyalsoldier_gfw}" | grep -Ev "^(regexp|keyword):" | perl -ne '/^(domain:|full:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> gfw.yaml
+          curl -sSL ${Loyalsoldier_gfw} | grep -Ev "^(regexp|keyword):" | perl -ne '/^(domain:|full:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> gfw.yaml
           ./mihomo convert-ruleset domain yaml gfw.yaml gfw.mrs
 
-      - name: Generate greatfire.yaml and greatfire.mrs
-        shell: bash
+      - name: Generate greatfire.txt file
         run: |
           echo "payload:" > greatfire.yaml
-          curl -sSL "${Loyalsoldier_greatfire}" | grep -Ev "^(regexp|keyword):" | perl -ne '/^(domain:|full:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> greatfire.yaml
+          curl -sSL ${Loyalsoldier_greatfire} | grep -Ev "^(regexp|keyword):" | perl -ne '/^(domain:|full:)?([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$2|\n"' | sed "s/|/'/g" >> greatfire.yaml
           ./mihomo convert-ruleset domain yaml greatfire.yaml greatfire.mrs
 
-      - name: Generate tld-not-cn.yaml and tld-not-cn.mrs
-        shell: bash
+      - name: Generate tld-not-cn.txt file
         run: |
           echo "payload:" > tld-not-cn.yaml
           curl -sSL "${custom_tld_not_cn}" | perl -ne '/^domain:([-_a-zA-Z0-9]+(\.[-_a-zA-Z0-9]+)*)/ && print "  - |+.$1|\n"' | sed "s/|/'/g" >> tld-not-cn.yaml
           ./mihomo convert-ruleset domain yaml tld-not-cn.yaml tld-not-cn.mrs
 
-      - name: Generate cncidr.yaml and cncidr.mrs
-        shell: bash
+      - name: Generate cncidr.txt file
         run: |
           echo "payload:" > cncidr.yaml
-          curl -sSL "${cn_cidr}" | perl -ne '/(.+\/\d+)/ && print "  - |$1|\n"' | sed "s/|/'/g" >> cncidr.yaml
+          curl -sSL ${cn_cidr} | perl -ne '/(.+\/\d+)/ && print "  - |$1|\n"' | sed "s/|/'/g" >> cncidr.yaml
           ./mihomo convert-ruleset ipcidr yaml cncidr.yaml cncidr.mrs
 
-      - name: Generate telegramcidr.yaml and telegramcidr.mrs
-        shell: bash
+      - name: Generate telegramcidr.txt file
         run: |
           echo "payload:" > telegramcidr.yaml
-          curl -sSL "${telegram_cidr}" | perl -ne '/(.+\/\d+)/ && print "  - |$1|\n"' | sed "s/|/'/g" >> telegramcidr.yaml
+          curl -sSL ${telegram_cidr} | perl -ne '/(.+\/\d+)/ && print "  - |$1|\n"' | sed "s/|/'/g" >> telegramcidr.yaml
           ./mihomo convert-ruleset ipcidr yaml telegramcidr.yaml telegramcidr.mrs
 
-      - name: Generate lancidr.yaml and lancidr.mrs
-        shell: bash
+      - name: Generate lancidr.txt file
         run: |
           echo "payload:" > lancidr.yaml
-          curl -sSL "${lan_cidr}" | perl -ne '/(.+\/\d+)/ && print "  - |$1|\n"' | sed "s/|/'/g" >> lancidr.yaml
+          curl -sSL ${lan_cidr} | perl -ne '/(.+\/\d+)/ && print "  - |$1|\n"' | sed "s/|/'/g" >> lancidr.yaml
           ./mihomo convert-ruleset ipcidr yaml lancidr.yaml lancidr.mrs
 
-      - name: Generate applications.yaml
-        shell: bash
+      - name: Generate applications.txt file
         run: |
           mv applications.txt applications.yaml
 
-      - name: Generate fakeip-filter.yaml and fakeip-filter.mrs
-        shell: bash
+      - name: Generate fakeip-filter files
         run: |
-          echo "payload:" > fakeip-filter.yaml
-          curl -sSL "${fakeip_filter}" | sed "s/.*/  - '&'/" >> fakeip-filter.yaml
-          ./mihomo convert-ruleset domain yaml fakeip-filter.yaml fakeip-filter.mrs
+          curl -sSL "${fakeip_filter}" -o fakeip-filter.txt
+          ./mihomo convert-ruleset domain text fakeip-filter.txt fakeip-filter.yaml
+          ./mihomo convert-ruleset domain text fakeip-filter.txt fakeip-filter.mrs
 
       - name: Move files to publish directory
-        shell: bash
         run: |
           mkdir -p publish
           cp *.yaml ./publish/
           cp *.mrs ./publish/
 
       - name: Git push assets to "release" branch
-        shell: bash
         run: |
           cd publish || exit 1
           git init
@@ -174,6 +151,13 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b release
           git add .
-          git commit -m "${BUILD_NAME}" || echo "No changes to commit"
+          git commit -m "${{ env.RELEASE_NAME }}"
           git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git push -f origin release
+
+      - name: Purge jsdelivr CDN
+        run: |
+          cd publish || exit 1
+          for file in $(ls); do
+            curl -i "https://purge.jsdelivr.net/gh/${{ github.repository }}@release/${file}"
+          done
