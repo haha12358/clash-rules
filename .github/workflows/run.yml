@@ -133,9 +133,8 @@ jobs:
 
       - name: Generate fakeip-filter files
         run: |
-          curl -sSL "${fakeip_filter}" -o fakeip-filter.txt
-          ./mihomo convert-ruleset domain text fakeip-filter.txt fakeip-filter.yaml
-          ./mihomo convert-ruleset domain text fakeip-filter.txt fakeip-filter.mrs
+          { echo "payload:"; curl -sSL "${fakeip_filter}" | grep -v '^#' | grep -v '^[[:space:]]*$' | sed "s/^/  - '/; s/$/'/"; } > fakeip-filter.yaml
+          ./mihomo convert-ruleset domain yaml fakeip-filter.yaml fakeip-filter.mrs
 
       - name: Move files to publish directory
         run: |
