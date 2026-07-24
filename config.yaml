@@ -1,21 +1,26 @@
 proxy-providers:
-  airport:
+  Airport:
     url: ""
     type: http
-    interval: 86400
-    proxy: DIRECT
-    path: ./proxy_providers/airport.yaml
+    interval: 0
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
       interval: 300
+    proxy: ➡️ 直连
+
+proxies:
+  - {name: ➡️ 直连, type: direct}
+  - {name: 🚫 广告, type: reject}
+  - {name: 🏠 局域网, type: direct}
 
 mixed-port: 7890
 allow-lan: false
+bind-address: 127.0.0.1
 ipv6: false
 unified-delay: true
 tcp-concurrent: true
-global-client-fingerprint: chrome
+log-level: info
 keep-alive-idle: 600
 keep-alive-interval: 15
 profile:
@@ -39,9 +44,7 @@ sniffer:
 tun:
   enable: true
   stack: mixed
-  dns-hijack:
-    - "any:53"
-    - "tcp://any:53"
+  dns-hijack: ["any:53", "tcp://any:53"]
   auto-route: true
   auto-redirect: true
   auto-detect-interface: true
@@ -49,93 +52,77 @@ tun:
 dns:
   enable: true
   cache-algorithm: arc
-  listen: 0.0.0.0:1053
   ipv6: false
-  respect-rules: true
   enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
+  fake-ip-range: 198.18.0.0/16
   fake-ip-filter-mode: blacklist
-  default-nameserver:
-    - https://223.5.5.5/dns-query
-  proxy-server-nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  direct-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
-  nameserver:
-    - https://8.8.8.8/dns-query#RULES&ecs=223.5.5.0/24
   fake-ip-filter:
     - "rule-set:fakeip-filter"
+  default-nameserver:
+    - 223.5.5.5
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
 
 proxy-group-anchor:
   hk: &hk "(?i)香港|hk|hong ?kong"
   sg: &sg "(?i)新加坡|sg|singapore"
   jp: &jp "(?i)日本|jp|japan"
   tw: &tw "(?i)台湾|tw|taiwan"
-  us: &us "(?i)美国|us|usa|united ?states"
-  url-test: &url-test {type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300 }
+  us: &us "(?i)美国|us|usa|united ?states|america"
+  url-test: &url-test {type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300}
 
 proxy-groups:
-  - { name: '🚀 默认', type: select, proxies: ['🇭🇰 香港', '🇸🇬 新加坡', '🇯🇵 日本', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部'] }
-  - { name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动'], filter: *jp }
-  - { name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动'], filter: *hk }
-  - { name: '🇸🇬 新加坡', type: select, include-all: true, proxies: ['♻️ 新加坡自动'], filter: *sg }
-  - { name: '🇨🇳 台湾', type: select, include-all: true, proxies: ['♻️ 台湾自动'], filter: *tw }
-  - { name: '🇺🇸 美国', type: select, include-all: true, proxies: ['♻️ 美国自动'], filter: *us }
-  - { name: '🇺🇳 全部', type: select, include-all: true, proxies: ['♻️ 自动选择'] }
-  - { name: '➡️ 直连', type: select, proxies: [DIRECT] , hidden: true }
-  - { name: '🏠 局域网', type: select, proxies: ['➡️ 直连'], hidden: true }
-  - { name: '🐟️ 漏网之鱼', type: select, proxies: ['🚀 默认', '➡️ 直连'] }
-  - { name: '🚫 广告', type: select, proxies: [REJECT, REJECT-DROP] }
-  - { name: '♻️ 香港自动', <<: *url-test, filter: *hk }
-  - { name: '♻️ 新加坡自动', <<: *url-test, filter: *sg }
-  - { name: '♻️ 日本自动', <<: *url-test, filter: *jp }
-  - { name: '♻️ 台湾自动', <<: *url-test, filter: *tw }
-  - { name: '♻️ 美国自动', <<: *url-test, filter: *us }
-  - { name: '♻️ 自动选择', <<: *url-test }
+  - {name: '🚀 默认', type: select, proxies: ['🇯🇵 日本', '🇭🇰 香港', '🇸🇬 新加坡', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部']}
+  - {name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动'], filter: *jp}
+  - {name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动'], filter: *hk}
+  - {name: '🇸🇬 新加坡', type: select, include-all: true, proxies: ['♻️ 新加坡自动'], filter: *sg}
+  - {name: '🇨🇳 台湾', type: select, include-all: true, proxies: ['♻️ 台湾自动'], filter: *tw}
+  - {name: '🇺🇸 美国', type: select, include-all: true, proxies: ['♻️ 美国自动'], filter: *us}
+  - {name: '🇺🇳 全部', type: select, include-all: true, proxies: ['♻️ 自动选择']}
+  - {name: '🐟 漏网之鱼', type: select, proxies: ['🚀 默认']}
+  - {name: '♻️ 香港自动', <<: *url-test, filter: *hk}
+  - {name: '♻️ 新加坡自动', <<: *url-test, filter: *sg}
+  - {name: '♻️ 日本自动', <<: *url-test, filter: *jp}
+  - {name: '♻️ 台湾自动', <<: *url-test, filter: *tw}
+  - {name: '♻️ 美国自动', <<: *url-test, filter: *us}
+  - {name: '♻️ 自动选择', <<: *url-test}
 
 rule-anchor:
-  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
   class: &class {type: http, interval: 86400, behavior: classical, format: yaml}
 
-rule-providers:
-  fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/fakeip-filter.mrs", path: ./ruleset/fakeip-filter.mrs}
-  reject: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/reject.mrs", path: ./ruleset/reject.mrs}
-  icloud: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/icloud.mrs", path: ./ruleset/icloud.mrs}
-  apple: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/apple.mrs", path: ./ruleset/apple.mrs}
-  google: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/google.mrs", path: ./ruleset/google.mrs}
-  proxy: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/proxy.mrs", path: ./ruleset/proxy.mrs}
-  direct: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/direct.mrs", path: ./ruleset/direct.mrs}
-  private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/private.mrs", path: ./ruleset/private.mrs}
+rule-providers: 
+  fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/fakeip-filter.mrs"}
+  reject: {<<: *domain, url: "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockmihomo.mrs"}
+  icloud: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/icloud.mrs"}
+  apple: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/apple.mrs"}
+  google: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/google.mrs"}
+  proxy: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/proxy.mrs"}
+  direct: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/direct.mrs"}
+  private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/private.mrs"}
 
-  telegramcidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/telegramcidr.mrs", path: ./ruleset/telegramcidr.mrs}
-  cncidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/cncidr.mrs", path: ./ruleset/cncidr.mrs}
-  lancidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/lancidr.mrs", path: ./ruleset/lancidr.mrs}
+  telegramcidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/telegramcidr.mrs"}
+  cncidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/cncidr.mrs"}
+  lancidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/lancidr.mrs"}
 
-  applications: {<<: *class, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/applications.yaml", path: ./ruleset/applications.yaml}
-  diy-direct: {<<: *class, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/diy-direct.yaml", path: ./ruleset/diy-direct.yaml}
-  diy-proxy: {<<: *class, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/diy-proxy.yaml", path: ./ruleset/diy-proxy.yaml}
+  applications: {<<: *class, url: "https://raw.githubusercontent.com/haha12358/clash-rules/release/applications.yaml"}
+  diy-direct: {<<: *class, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/diy-direct.yaml"}
+  diy-proxy: {<<: *class, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/diy-proxy.yaml"}
 
 rules:
   - RULE-SET,applications,➡️ 直连
-
   - RULE-SET,private,🏠 局域网
   - RULE-SET,reject,🚫 广告
-
   - RULE-SET,diy-direct,➡️ 直连
   - RULE-SET,diy-proxy,🚀 默认
-
   - RULE-SET,icloud,➡️ 直连
   - RULE-SET,apple,➡️ 直连
   - RULE-SET,google,🚀 默认
-
   - RULE-SET,proxy,🚀 默认
   - RULE-SET,direct,➡️ 直连
-  
   - RULE-SET,lancidr,🏠 局域网,no-resolve
   - RULE-SET,telegramcidr,🚀 默认,no-resolve
   - RULE-SET,cncidr,➡️ 直连
-
-  - MATCH,🐟️ 漏网之鱼
+  - MATCH,🐟 漏网之鱼
