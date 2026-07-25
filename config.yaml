@@ -16,7 +16,6 @@ proxies:
 
 mixed-port: 7890
 allow-lan: false
-bind-address: 127.0.0.1
 ipv6: false
 unified-delay: true
 tcp-concurrent: true
@@ -44,7 +43,9 @@ sniffer:
 tun:
   enable: true
   stack: mixed
-  dns-hijack: ["any:53", "tcp://any:53"]
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
   auto-route: true
   auto-redirect: true
   auto-detect-interface: true
@@ -54,7 +55,7 @@ dns:
   cache-algorithm: arc
   ipv6: false
   enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.0/16
+  fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
     - "rule-set:fakeip-filter"
@@ -112,16 +113,16 @@ rule-providers:
   diy-proxy: {<<: *class, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/diy-proxy.yaml"}
 
 rules:
-  - RULE-SET,applications,➡️ 直连
   - RULE-SET,private,🏠 局域网
   - RULE-SET,reject,🚫 广告
+  - RULE-SET,applications,➡️ 直连
   - RULE-SET,diy-direct,➡️ 直连
   - RULE-SET,diy-proxy,🚀 默认
   - RULE-SET,icloud,➡️ 直连
   - RULE-SET,apple,➡️ 直连
   - RULE-SET,google,🚀 默认
-  - RULE-SET,proxy,🚀 默认
   - RULE-SET,direct,➡️ 直连
+  - RULE-SET,proxy,🚀 默认
   - RULE-SET,lancidr,🏠 局域网,no-resolve
   - RULE-SET,telegramcidr,🚀 默认,no-resolve
   - RULE-SET,cncidr,➡️ 直连
