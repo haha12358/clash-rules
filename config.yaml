@@ -111,7 +111,7 @@ rule-providers:
 rules:
   - RULE-SET,private,🏠 局域网
   - RULE-SET,anti-AD,🚫 广告
-  - RULE-SET,ai-!cn,🤖 AI
+  - RULE-SET,ai,🤖 AI
   - RULE-SET,entertainment,🎬 娱乐
   - RULE-SET,geolocation-!cn,🚀 默认
   - RULE-SET,cn,➡️ 直连
