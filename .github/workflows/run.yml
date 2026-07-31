@@ -222,10 +222,3 @@ jobs:
           git commit -m "${{ env.RELEASE_NAME }}"
           git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git push -f origin meta
-
-      - name: Purge jsdelivr CDN for meta branch
-        run: |
-          cd publish-meta || exit 1
-          find . -type f | sed 's|^\./||' | while read -r file; do
-            curl -i "https://purge.jsdelivr.net/gh/${{ github.repository }}@meta/${file}"
-          done
