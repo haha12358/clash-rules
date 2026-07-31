@@ -160,3 +160,72 @@ jobs:
           for file in $(ls); do
             curl -i "https://purge.jsdelivr.net/gh/${{ github.repository }}@release/${file}"
           done
+
+      # ========== 使用 meta-rules-converter 转换并推送到 meta 分支 ==========
+
+      - name: Setup Go for meta-rules-converter
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build meta-rules-converter
+        run: |
+          git clone --depth=1 https://github.com/MetaCubeX/meta-rules-converter.git
+          cd meta-rules-converter
+          go build -o ../converter .
+          cd ..
+
+      - name: Download Loyalsoldier geoip.dat and geosite.dat
+        run: |
+          curl -sSL -o geoip.dat    "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/geoip.dat"
+          curl -sSL -o geosite.dat "https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geosite.dat"
+          ls -lh geoip.dat geosite.dat
+
+      - name: Download GeoLite2-ASN.mmdb
+        run: |
+          curl -sSL -L -o GeoLite2-ASN.mmdb "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN.mmdb"
+          ls -lh GeoLite2-ASN.mmdb
+
+      - name: Convert geosite -> meta rule-set
+        run: |
+          mkdir -p meta-out/geosite
+          ./converter geosite -f geosite.dat -o meta-out/geosite
+
+      - name: Convert geoip -> meta rule-set
+        run: |
+          mkdir -p meta-out/geoip
+          ./converter geoip -f geoip.dat -o meta-out/geoip
+
+      - name: Convert ASN -> meta rule-set
+        run: |
+          mkdir -p meta-out/asn
+          ./converter asn -f GeoLite2-ASN.mmdb -o meta-out/asn
+
+      - name: Copy meta artifacts into publish-meta directory
+        run: |
+          mkdir -p publish-meta
+          cp -r meta-out/geosite publish-meta/
+          cp -r meta-out/geoip   publish-meta/
+          cp -r meta-out/asn      publish-meta/
+          cp GeoLite2-ASN.mmdb    publish-meta/
+          echo "----- publish-meta/ -----"
+          ls -R publish-meta/
+
+      - name: Git push assets to "meta" branch
+        run: |
+          cd publish-meta || exit 1
+          git init
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b meta
+          git add .
+          git commit -m "${{ env.RELEASE_NAME }}"
+          git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git push -f origin meta
+
+      - name: Purge jsdelivr CDN for meta branch
+        run: |
+          cd publish-meta || exit 1
+          find . -type f | sed 's|^\./||' | while read -r file; do
+            curl -i "https://purge.jsdelivr.net/gh/${{ github.repository }}@meta/${file}"
+          done
