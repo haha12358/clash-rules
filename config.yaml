@@ -116,6 +116,6 @@ rules:
   - RULE-SET,geolocation-!cn,🚀 默认
   - RULE-SET,cn,➡️ 直连
   - RULE-SET,lancidr,🏠 局域网,no-resolve
-  - RULE-SET,telegramcidr,😄 低倍率,no-resolve
+  - RULE-SET,telegramcidr,🚀 默认,no-resolve
   - RULE-SET,cncidr,➡️ 直连
   - MATCH,🐟 漏网之鱼
