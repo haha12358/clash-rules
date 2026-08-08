@@ -47,4 +47,4 @@ rules:
  
 - 其余 `category-ads-all`, `icloud`, `apple`, `google` 等规则集可以在 [meta分支](https://github.com/haha12358/clash-rules/tree/meta) 下的 [geosite](https://github.com/haha12358/clash-rules/tree/meta/geosite) 内找到。
 
-- `applications`, [anti-AD](https://github.com/privacy-protection-tools/anti-AD), [adblockfilters](https://github.com/217heidai/adblockfilters) 已存放到 [meta分支](https://github.com/haha12358/clash-rules/tree/meta) 下的 [other](https://github.com/haha12358/clash-rules/tree/meta/other) 内。
+- `applications` 已存放到 [meta分支](https://github.com/haha12358/clash-rules/tree/meta) 下的 [other](https://github.com/haha12358/clash-rules/tree/meta/other) 内。
