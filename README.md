@@ -39,6 +39,8 @@ rules:
 
 #### 规则集说明
 
+- [config.yaml](https://github.com/haha12358/clash-rules/blob/hidden/config.yaml) 为参考配置，可自行修改
+
 - `fakeip-filter` 规则集使用在 `dns` 中:
     ```yaml
     fake-ip-filter:
