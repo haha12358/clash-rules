@@ -18,6 +18,14 @@ jobs:
         run: |
           echo "RELEASE_NAME=Released on $(date +%Y%m%d%H%M)" >> $GITHUB_ENV
           echo "fakeip_filter=https://raw.githubusercontent.com/juewuy/ShellCrash/dev/public/fake_ip_filter.list" >> $GITHUB_ENV
+          echo "ads_adg_cn=https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt" >> $GITHUB_ENV
+          echo "ads_adg_mobile=https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/MobileFilter/sections/adservers.txt" >> $GITHUB_ENV
+          echo "ads_easylist_cn=https://easylist-downloads.adblockplus.org/easylistchina.txt" >> $GITHUB_ENV
+          echo "ads_xinggsf=https://raw.githubusercontent.com/xinggsf/Adblock-Plus-Rule/master/mv.txt" >> $GITHUB_ENV
+          echo "ads_jiekouad=https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt" >> $GITHUB_ENV
+          echo "ads_awaavenue=https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt" >> $GITHUB_ENV
+          echo "ads_black=https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/black.txt" >> $GITHUB_ENV
+          echo "ads_white=https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/white.txt" >> $GITHUB_ENV
         shell: bash
 
       - name: Checkout the "hidden" branch
@@ -27,7 +35,7 @@ jobs:
           ref: hidden
 
       - name: Setup Go for meta-rules-converter
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@v5
         with:
           go-version: '1.22'
 
@@ -80,6 +88,168 @@ jobs:
           curl -fsSL "${fakeip_filter}" > fakeip-filter.list
           ./mihomo convert-ruleset domain text fakeip-filter.list fakeip-filter.mrs
 
+      - name: Download ad filter sources
+        run: |
+          mkdir -p ads-src
+          curl -fsSL -o ads-src/AdGuard_Chinese_filter.txt "${ads_adg_cn}" \
+            -o ads-src/AdGuard_Mobile_Ads_filter.txt "${ads_adg_mobile}" \
+            -o ads-src/EasyList_China.txt "${ads_easylist_cn}" \
+            -o ads-src/xinggsf_mv.txt "${ads_xinggsf}" \
+            -o ads-src/jiekouAD.txt "${ads_jiekouad}" \
+            -o ads-src/AWAvenue_Ads_Rule.txt "${ads_awaavenue}" \
+            -o ads-src/black.txt "${ads_black}" \
+            -o ads-src/white.txt "${ads_white}"
+          ls -lh ads-src/
+
+      - name: Generate ads.yaml and ads-mobile.yaml from adblock filters
+        run: |
+          python3 - <<'EOF'
+          import os
+          import re
+
+          SRC = 'ads-src'
+
+          ALL = [
+              'AdGuard_Chinese_filter.txt',
+              'AdGuard_Mobile_Ads_filter.txt',
+              'EasyList_China.txt',
+              'xinggsf_mv.txt',
+              'jiekouAD.txt',
+              'AWAvenue_Ads_Rule.txt',
+          ]
+          NO_MOBILE = [
+              'AdGuard_Chinese_filter.txt',
+              'EasyList_China.txt',
+              'xinggsf_mv.txt',
+              'jiekouAD.txt',
+              'AWAvenue_Ads_Rule.txt',
+          ]
+
+          IP_RE = re.compile(r'^\d{1,3}(\.\d{1,3}){3}(:\d+)?$')
+          DOMAIN_RE = re.compile(
+              r'^[a-z0-9]([a-z0-9\-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]*[a-z0-9])?)+$')
+
+          def norm(d):
+              d = d.strip().lower().lstrip('.').rstrip('.')
+              if len(d) < 4 or '.' not in d:
+                  return None
+              if any(c in d for c in '*_|:/#?=^'):
+                  return None
+              if d.startswith('-') or IP_RE.match(d):
+                  return None
+              if not DOMAIN_RE.match(d):
+                  return None
+              return d
+
+          def cut(body):
+              i = len(body)
+              for ch in ('/', '^', '$', '|', ':', '#', '?', '='):
+                  j = body.find(ch)
+                  if 0 <= j < i:
+                      i = j
+              return body[:i]
+
+          def net(body, kind):
+              if '*' in body:
+                  if body.startswith('*.'):
+                      body = body[2:]
+                  else:
+                      return None
+              if '*' in body:
+                  return None
+              d = norm(cut(body))
+              return (kind, d) if d else None
+
+          def parse(line):
+              line = line.strip()
+              if not line:
+                  return None
+              if line.startswith('﻿'):
+                  line = line[1:].strip()
+              if any(t in line for t in ('##', '#?#', '#@#', '#$#', '#%#')):
+                  return None
+              if line.startswith(('!', '#', '[')):
+                  return None
+              if len(line) > 2 and line.startswith('/') and line.endswith('/'):
+                  return None
+              if line.endswith('$network') and IP_RE.match(line[:-8].strip()):
+                  return None
+              m = re.match(r'^(0\.0\.0\.0|127\.0\.0\.1)[ \t]+(\S+)', line)
+              if m:
+                  tok = m.group(2).split('#')[0].strip()
+                  if tok in ('localhost', 'localhost.localdomain', 'local'):
+                      return None
+                  d = norm(tok)
+                  return ('B', d) if d else None
+              kind = 'B'
+              if line.startswith('@@'):
+                  kind = 'U'
+                  line = line[2:]
+              if line.startswith('||'):
+                  return net(line[2:], kind)
+              if line.startswith('|'):
+                  line = line[1:]
+              if line.startswith('http://'):
+                  d = norm(cut(line[len('http://'):]))
+                  return (kind, d) if d else None
+              if line.startswith('https://'):
+                  d = norm(cut(line[len('https://'):]))
+                  return (kind, d) if d else None
+              d = norm(cut(line))   # 裸域名或裸域名+^，先截断再校验
+              return (kind, d) if d else None
+
+          def read_set(fname, kinds):
+              out = set()
+              path = '%s/%s' % (SRC, fname)
+              if not os.path.exists(path):
+                  raise SystemExit('ERROR: missing source file: %s' % path)
+              with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                  for raw in f:
+                      r = parse(raw)
+                      if r and r[0] in kinds:
+                          out.add(r[1])
+              return out
+
+          def prune(doms):
+              keep = set()
+              for d in sorted(doms):
+                  labels = d.split('.')
+                  drop = False
+                  for i in range(1, len(labels)):
+                      if '.'.join(labels[i:]) in doms:
+                          drop = True
+                          break
+                  if not drop:
+                      keep.add(d)
+              return keep
+
+          def build(sources, out_name):
+              block = set()
+              unblock = set()
+              for f in sources:
+                  block |= read_set(f, ('B',))
+                  unblock |= read_set(f, ('U',))
+              exclude = read_set('black.txt', ('B', 'U')) | read_set('white.txt', ('B', 'U'))
+              final = prune((block - unblock) - exclude)
+              if not final:
+                  raise SystemExit('ERROR: %s: empty payload, aborting' % out_name)
+              with open(out_name, 'w', encoding='utf-8') as f:
+                  f.write('payload:\n')
+                  for d in sorted(final):
+                      f.write("  - '+%s'\n" % d)
+              print('%s: block=%d unblock=%d exclude=%d final=%d'
+                    % (out_name, len(block), len(unblock), len(exclude), len(final)))
+
+          build(ALL, 'ads-mobile.yaml')
+          build(NO_MOBILE, 'ads.yaml')
+          EOF
+
+      - name: Convert ads rule-sets to mihomo mrs
+        run: |
+          ./mihomo convert-ruleset domain yaml ads.yaml ads.mrs
+          ./mihomo convert-ruleset domain yaml ads-mobile.yaml ads-mobile.mrs
+          ls -lh ads.yaml ads.mrs ads-mobile.yaml ads-mobile.mrs
+
       - name: Copy meta artifacts and extras into publish-meta directory
         run: |
           mkdir -p publish-meta
@@ -89,6 +259,7 @@ jobs:
           mkdir -p publish-meta/other
           cp applications.yaml applications.list publish-meta/other/
           cp fakeip-filter.list fakeip-filter.mrs publish-meta/other/
+          cp ads.yaml ads.mrs ads-mobile.yaml ads-mobile.mrs publish-meta/other/
 
       - name: Git push assets to "meta" branch
         run: |
