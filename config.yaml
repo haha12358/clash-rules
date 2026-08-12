@@ -99,7 +99,6 @@ rule-providers:
   fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/fakeip-filter.mrs"}
   private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/private.mrs"}
   AWAvenue: {<<: *domain, url: "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.mrs"}
-  jiekouAD: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/jiekouAD.mrs"}
   ai: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-ai-!cn.mrs"}
   entertainment: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-entertainment.mrs"}
   geolocation-!cn: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/geolocation-!cn.mrs"}
@@ -112,7 +111,6 @@ rule-providers:
 rules:
   - RULE-SET,private,🏠 局域网
   - RULE-SET,AWAvenue,🚫 广告
-  - RULE-SET,jiekouAD,🚫 广告
   - RULE-SET,ai,🤖 AI
   - RULE-SET,entertainment,🎬 娱乐
   - RULE-SET,geolocation-!cn,🚀 默认
