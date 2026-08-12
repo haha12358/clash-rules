@@ -26,13 +26,6 @@ jobs:
           repository: Loyalsoldier/clash-rules
           ref: hidden
 
-      - name: Checkout own repo for ads converter
-        uses: actions/checkout@v7
-        with:
-          repository: ${{ github.repository }}
-          ref: master
-          path: ads-src
-
       - name: Setup Go for meta-rules-converter
         uses: actions/setup-go@v7
         with:
@@ -87,34 +80,6 @@ jobs:
           curl -fsSL "${fakeip_filter}" > fakeip-filter.list
           ./mihomo convert-ruleset domain text fakeip-filter.list fakeip-filter.mrs
 
-      - name: Install Python deps for ads converter
-        run: |
-          pip install -r ads-src/ads/requirements.txt
-
-      - name: Fetch latest jiekouAD.txt from upstream
-        run: |
-          curl -fsSL -o ads-src/ads/rules/jiekouAD.txt "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt" \
-            || { echo "upstream fetch failed, using committed jiekouAD.txt"; }
-          head -6 ads-src/ads/rules/jiekouAD.txt
-
-      - name: Generate jiekouAD.yaml from rule sources
-        run: |
-          cd ads-src/ads
-          python3 - <<'EOF'
-          from readme import ReadMe
-          from filter import Filter
-
-          readme = ReadMe('README.md')
-          ruleList = readme.getRules()
-          f = Filter(ruleList, 'rules')
-          f.generate(readme.getRulesNames())
-          EOF
-
-      - name: Convert ads rule-sets to mihomo mrs
-        run: |
-          ./mihomo convert-ruleset domain yaml ads-src/ads/rules/jiekouAD.yaml ads-src/ads/rules/jiekouAD.mrs
-          ls -lh ads-src/ads/rules/jiekouAD*
-
       - name: Copy meta artifacts and extras into publish-meta directory
         run: |
           mkdir -p publish-meta
@@ -124,7 +89,6 @@ jobs:
           mkdir -p publish-meta/other
           cp applications.yaml applications.list publish-meta/other/
           cp fakeip-filter.list fakeip-filter.mrs publish-meta/other/
-          cp ads-src/ads/rules/jiekouAD.yaml ads-src/ads/rules/jiekouAD.mrs publish-meta/other/
 
       - name: Git push assets to "meta" branch
         run: |
