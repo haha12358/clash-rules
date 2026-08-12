@@ -18,6 +18,7 @@ jobs:
         run: |
           echo "RELEASE_NAME=Released on $(date +%Y%m%d%H%M)" >> $GITHUB_ENV
           echo "fakeip_filter=https://raw.githubusercontent.com/juewuy/ShellCrash/dev/public/fake_ip_filter.list" >> $GITHUB_ENV
+          echo "anti_ad=https://raw.githubusercontent.com/haha12358/anti-AD/refs/heads/master/anti-ad-clash.yaml" >> $GITHUB_ENV
         shell: bash
 
       - name: Checkout the "hidden" branch
@@ -80,6 +81,11 @@ jobs:
           curl -fsSL "${fakeip_filter}" > fakeip-filter.list
           ./mihomo convert-ruleset domain text fakeip-filter.list fakeip-filter.mrs
 
+      - name: Generate anti-ad file
+        run: |
+          curl -fsSL "${anti_ad}" > anti-ad-clash.yaml
+          ./mihomo convert-ruleset domain yaml anti-ad-clash.yaml anti-ad.mrs
+
       - name: Copy meta artifacts and extras into publish-meta directory
         run: |
           mkdir -p publish-meta
@@ -89,6 +95,7 @@ jobs:
           mkdir -p publish-meta/other
           cp applications.yaml applications.list publish-meta/other/
           cp fakeip-filter.list fakeip-filter.mrs publish-meta/other/
+          cp anti-ad.mrs publish-meta/other/
 
       - name: Git push assets to "meta" branch
         run: |
