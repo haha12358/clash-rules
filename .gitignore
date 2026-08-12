@@ -1,7 +1,0 @@
-# ads 转换器生成的产物（workflow 每次重新生成）
-ads/rules/jiekouAD.yaml
-ads/rules/jiekouAD.mrs
-ads/rules/domain.txt
-
-# Python 缓存
-__pycache__/
