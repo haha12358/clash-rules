@@ -105,6 +105,7 @@ rule-providers:
   fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/fakeip-filter.mrs"}
   private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/private.mrs"}
   AdRules: {<<: *domain, url: "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adrules-mihomo.mrs"}
+  direct: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/rules/direct.mrs"}
   ai: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-ai-!cn.mrs"}
   entertainment: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-entertainment.mrs"}
   geolocation-!cn: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/geolocation-!cn.mrs"}
@@ -117,6 +118,7 @@ rule-providers:
 rules:
   - RULE-SET,private,🏠 局域网
   - RULE-SET,AdRules,🚫 广告
+  - RULE-SET,direct,➡️ 直连
   - RULE-SET,ai,🤖 AI
   - RULE-SET,entertainment,🎬 娱乐
   - RULE-SET,geolocation-!cn,🚀 默认
