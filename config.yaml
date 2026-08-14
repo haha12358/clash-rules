@@ -58,10 +58,16 @@ dns:
   fake-ip-filter:
     - "rule-set:fakeip-filter"
   default-nameserver:
-    - 223.5.5.5
-  nameserver:
+    - tls://223.5.5.5
+    - tls://1.12.12.12
+  proxy-server-nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  nameserver:
+    - 'https://8.8.8.8/dns-query#😄 低倍率&ecs=218.201.4.3/24&ecs-override=true'
 
 proxy-group-anchor:
   hk: &hk "(?i)香港|hk|hong ?kong"
@@ -98,7 +104,7 @@ rule-anchor:
 rule-providers: 
   fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/fakeip-filter.mrs"}
   private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/private.mrs"}
-  AWAvenue: {<<: *domain, url: "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.mrs"}
+  AdRules: {<<: *domain, url: "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adrules-mihomo.mrs"}
   ai: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-ai-!cn.mrs"}
   entertainment: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-entertainment.mrs"}
   geolocation-!cn: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/geolocation-!cn.mrs"}
@@ -110,7 +116,7 @@ rule-providers:
 
 rules:
   - RULE-SET,private,🏠 局域网
-  - RULE-SET,AWAvenue,🚫 广告
+  - RULE-SET,AdRules,🚫 广告
   - RULE-SET,ai,🤖 AI
   - RULE-SET,entertainment,🎬 娱乐
   - RULE-SET,geolocation-!cn,🚀 默认
