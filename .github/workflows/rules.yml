@@ -1,0 +1,46 @@
+name: Generate DIY rules MRS
+
+on:
+  push:
+    branches:
+      - hidden
+    paths:
+      - "rules/direct.yaml"
+      - "rules/proxy.yaml"
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout "hidden" branch
+        uses: actions/checkout@v7
+
+      - name: Download `mihomo core`
+        run: |
+          mihomo_version=$(curl -fsSL https://api.github.com/repos/MetaCubeX/mihomo/releases | grep 'tag_name' | grep -v 'Alpha' | head -n 1 | sed -e 's/.*v/v/' -e 's/".*//')
+          curl -fsSL "https://github.com/MetaCubeX/mihomo/releases/download/${mihomo_version}/mihomo-linux-amd64-${mihomo_version}.gz" | gzip -d > ./mihomo
+          chmod +x ./mihomo
+
+      - name: Convert yaml to mrs
+        run: |
+          for f in direct proxy; do
+            if grep -qE '^[[:space:]]*-[[:space:]]+' "rules/$f.yaml"; then
+              ./mihomo convert-ruleset domain yaml "rules/$f.yaml" "rules/$f.mrs"
+            else
+              echo "rules/$f.yaml is empty, skip conversion"
+              rm -f "rules/$f.mrs"
+            fi
+          done
+
+      - name: Commit and push mrs back to "hidden"
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add rules/direct.mrs || true
+          git add rules/proxy.mrs || true
+          git diff --cached --quiet || git commit -m "Update rules mrs"
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git push origin HEAD:hidden
