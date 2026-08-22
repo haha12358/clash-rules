@@ -51,6 +51,7 @@ tun:
 dns:
   enable: true
   cache-algorithm: arc
+  listen: 0.0.0.0:1053
   ipv6: false
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
@@ -104,10 +105,11 @@ rule-anchor:
 rule-providers: 
   fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/fakeip-filter.mrs"}
   private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/private.mrs"}
-  AdRules: {<<: *domain, url: "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adrules-mihomo.mrs"}
+  anti-AD: {<<: *domain, url: "https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/mihomo.mrs"}
   direct: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/rules/direct.mrs"}
   ai: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-ai-!cn.mrs"}
   entertainment: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-entertainment.mrs"}
+  porn: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-porn.mrs"}
   geolocation-!cn: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/geolocation-!cn.mrs"}
   cn: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/cn.mrs"}
 
@@ -117,10 +119,11 @@ rule-providers:
 
 rules:
   - RULE-SET,private,🏠 局域网
-  - RULE-SET,AdRules,🚫 广告
+  - RULE-SET,anti-AD,🚫 广告
   - RULE-SET,direct,➡️ 直连
   - RULE-SET,ai,🤖 AI
   - RULE-SET,entertainment,🎬 娱乐
+  - RULE-SET,porn,🎬 娱乐
   - RULE-SET,geolocation-!cn,🚀 默认
   - RULE-SET,cn,➡️ 直连
   - RULE-SET,lancidr,🏠 局域网,no-resolve
