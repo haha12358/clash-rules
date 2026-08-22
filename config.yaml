@@ -68,7 +68,7 @@ dns:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
   nameserver:
-    - 'https://8.8.8.8/dns-query#😄 低倍率&ecs=218.201.4.3/24&ecs-override=true'
+    - 'https://8.8.8.8/dns-query#😄 低倍率&ecs=218.201.4.0/24&ecs-override=true'
 
 proxy-group-anchor:
   hk: &hk "(?i)香港|hk|hong ?kong"
