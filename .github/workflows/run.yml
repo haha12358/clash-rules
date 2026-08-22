@@ -1,4 +1,5 @@
 name: Generate RULE-SET for Mihomo
+
 on:
   workflow_dispatch:
   schedule:
@@ -8,96 +9,119 @@ on:
       - master
     paths-ignore:
       - "**/README.md"
+
 permissions:
   contents: write
+
+concurrency:
+  group: generate-rules
+  cancel-in-progress: false
+
 jobs:
   build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set variables
-        run: |
-          echo "RELEASE_NAME=Released on $(date +%Y%m%d%H%M)" >> $GITHUB_ENV
-          echo "fakeip_filter=https://raw.githubusercontent.com/juewuy/ShellCrash/dev/public/fake_ip_filter.list" >> $GITHUB_ENV
-        shell: bash
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
 
-      - name: Checkout the "hidden" branch
+    steps:
+      - name: Checkout the "hidden" branch (sparse)
         uses: actions/checkout@v7
         with:
           repository: Loyalsoldier/clash-rules
           ref: hidden
+          sparse-checkout: |
+            applications.txt
+          sparse-checkout-cone-mode: false
+
+      - name: Clone meta-rules-converter
+        run: git clone --depth=1 https://github.com/MetaCubeX/meta-rules-converter.git
 
       - name: Setup Go for meta-rules-converter
         uses: actions/setup-go@v7
         with:
-          go-version: '1.22'
+          go-version: "stable"
+          cache-dependency-path: meta-rules-converter/go.sum
 
       - name: Build meta-rules-converter
         run: |
-          git clone --depth=1 https://github.com/MetaCubeX/meta-rules-converter.git
           cd meta-rules-converter
           go build -o ../converter .
-          cd ..
 
-      - name: Download and unzip `mihomo core`
+      - name: Resolve latest stable mihomo version
+        id: mihomo
         run: |
-          mihomo_version=$(curl -fsSL https://api.github.com/repos/MetaCubeX/mihomo/releases | grep 'tag_name' | grep -v 'Alpha' | head -n 1 | sed -e 's/.*v/v/' -e 's/".*//')
-          curl -fsSL "https://github.com/MetaCubeX/mihomo/releases/download/${mihomo_version}/mihomo-linux-amd64-${mihomo_version}.gz" | gzip -d > ./mihomo
+          version=$(curl -fsSL --retry 3 --retry-all-errors \
+            "https://api.github.com/repos/MetaCubeX/mihomo/releases?per_page=30" \
+            | jq -r '[.[] | select(.prerelease == false and (.tag_name | test("alpha"; "i") | not)) | .tag_name][0]')
+          test -n "$version" || { echo "Failed to resolve mihomo version"; exit 1; }
+          echo "mihomo_version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download mihomo core, geo data and fakeip filter (parallel)
+        env:
+          MIHOMO_VERSION: ${{ steps.mihomo.outputs.mihomo_version }}
+        run: |
+          pids=()
+          curl -fsSL --retry 3 --retry-all-errors -o mihomo.gz \
+            "https://github.com/MetaCubeX/mihomo/releases/download/${MIHOMO_VERSION}/mihomo-linux-amd64-${MIHOMO_VERSION}.gz" &
+          pids+=($!)
+          curl -fsSL --retry 3 --retry-all-errors \
+            -o geoip.dat "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/geoip.dat" &
+          pids+=($!)
+          curl -fsSL --retry 3 --retry-all-errors \
+            -o geosite.dat "https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geosite.dat" &
+          pids+=($!)
+          curl -fsSL --retry 3 --retry-all-errors \
+            -o GeoLite2-ASN.mmdb "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN.mmdb" &
+          pids+=($!)
+          curl -fsSL --retry 3 --retry-all-errors \
+            -o fakeip-filter.list "https://raw.githubusercontent.com/juewuy/ShellCrash/dev/public/fake_ip_filter.list" &
+          pids+=($!)
+          for p in "${pids[@]}"; do wait "$p" || exit 1; done
+          gzip -d mihomo.gz
           chmod +x ./mihomo
+          for f in mihomo geoip.dat geosite.dat GeoLite2-ASN.mmdb fakeip-filter.list; do
+            test -s "$f" || { echo "ERROR: $f is missing or empty"; exit 1; }
+          done
+          ls -lh mihomo geoip.dat geosite.dat GeoLite2-ASN.mmdb fakeip-filter.list
 
-      - name: Download Loyalsoldier geoip.dat and geosite.dat
+      - name: Convert geosite / geoip / ASN to meta rule-sets (parallel)
         run: |
-          curl -fsSL -o geoip.dat    "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/geoip.dat"
-          curl -fsSL -o geosite.dat "https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geosite.dat"
-          ls -lh geoip.dat geosite.dat
-
-      - name: Download GeoLite2-ASN.mmdb
-        run: |
-          curl -fsSL -o GeoLite2-ASN.mmdb "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/GeoLite2-ASN.mmdb"
-          ls -lh GeoLite2-ASN.mmdb
-
-      - name: Convert geosite -> meta rule-set
-        run: |
-          mkdir -p meta-out/geosite
-          ./converter geosite -f geosite.dat -o meta-out/geosite
-
-      - name: Convert geoip -> meta rule-set
-        run: |
-          mkdir -p meta-out/geoip
-          ./converter geoip -f geoip.dat -o meta-out/geoip
-
-      - name: Convert ASN -> meta rule-set
-        run: |
-          mkdir -p meta-out/asn
-          ./converter asn -f GeoLite2-ASN.mmdb -o meta-out/asn
+          mkdir -p meta-out/geosite meta-out/geoip meta-out/asn
+          pids=()
+          ./converter geosite -f geosite.dat -o meta-out/geosite &
+          pids+=($!)
+          ./converter geoip -f geoip.dat -o meta-out/geoip &
+          pids+=($!)
+          ./converter asn -f GeoLite2-ASN.mmdb -o meta-out/asn &
+          pids+=($!)
+          for p in "${pids[@]}"; do wait "$p" || exit 1; done
 
       - name: Generate applications file
         run: |
           mv applications.txt applications.yaml
           grep -v 'payload:' applications.yaml | sed -e 's/^[ \t]*- //' > applications.list
+          test -s applications.list
 
-      - name: Generate fakeip-filter file
-        run: |
-          curl -fsSL "${fakeip_filter}" > fakeip-filter.list
-          ./mihomo convert-ruleset domain text fakeip-filter.list fakeip-filter.mrs
+      - name: Generate fakeip-filter.mrs
+        run: ./mihomo convert-ruleset domain text fakeip-filter.list fakeip-filter.mrs
 
-      - name: Copy meta artifacts and extras into publish-meta directory
+      - name: Assemble publish-meta directory
         run: |
-          mkdir -p publish-meta
-          cp -r meta-out/geosite publish-meta/
-          cp -r meta-out/geoip   publish-meta/
-          cp -r meta-out/asn      publish-meta/
           mkdir -p publish-meta/other
-          cp applications.yaml applications.list publish-meta/other/
-          cp fakeip-filter.list fakeip-filter.mrs publish-meta/other/
+          cp -r meta-out/geosite meta-out/geoip meta-out/asn publish-meta/
+          cp applications.yaml applications.list fakeip-filter.list fakeip-filter.mrs publish-meta/other/
+          echo "Artifacts: $(find publish-meta -type f | wc -l) files"
 
-      - name: Git push assets to "meta" branch
+      - name: Force push assets to "meta" branch
         run: |
           cd publish-meta || exit 1
-          git init
+          git init -b meta
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b meta
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes since last run; meta branch left untouched"
+            exit 0
+          fi
           git add .
-          git commit -m "${{ env.RELEASE_NAME }}"
+          git commit -m "Released on $(date +%Y%m%d%H%M)"
           git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git push -f origin meta
