@@ -1,8 +1,14 @@
-### 使用方式
+# clash-rules
 
-要想使用本项目的规则集，只需要在 Clash 配置文件中添加如下 `rule-providers` 和 `rules`。
+Mihomo (Clash Meta) 规则集仓库，由 GitHub Actions 每日 06:30 自动生成并发布到 [`meta`](https://github.com/haha12358/clash-rules/tree/meta) 分支，可通过 `rule-providers` 直接订阅使用。
 
-#### Rule Providers 配置方式
+![Build](https://github.com/haha12358/clash-rules/actions/workflows/run.yml/badge.svg)
+
+## 使用方式
+
+在 Clash 配置中添加如下 `rule-providers` 和 `rules` 即可。
+
+### Rule Providers
 
 ```yaml
 rule-anchor:
@@ -10,7 +16,7 @@ rule-anchor:
   domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
   class: &class {type: http, interval: 86400, behavior: classical, format: yaml}
 
-rule-providers: 
+rule-providers:
   fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/fakeip-filter.mrs"}
   private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/private.mrs"}
   ai: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-ai-!cn.mrs"}
@@ -22,7 +28,7 @@ rule-providers:
   lancidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geoip/private.mrs"}
 ```
 
-#### Rules 配置方式
+### Rules
 
 ```yaml
 # 需要确保有 name 为 AI 和 PROXY 的 proxies 或 proxy-groups
@@ -37,16 +43,15 @@ rules:
   - MATCH,PROXY
 ```
 
-#### 规则集说明
+### 说明
 
-- [config.yaml](https://github.com/haha12358/clash-rules/blob/hidden/config.yaml) 为参考配置，可自行修改
+- `fakeip-filter` 用于 `dns` 的 `fake-ip-filter`：
 
-- `fakeip-filter` 规则集使用在 `dns` 中:
-    ```yaml
+  ```yaml
+  dns:
     fake-ip-filter:
     - "rule-set:fakeip-filter"
-    ```
- 
-- 其余 `category-ads-all`, `icloud`, `apple`, `google` 等规则集可以在 [meta分支](https://github.com/haha12358/clash-rules/tree/meta) 下的 [geosite](https://github.com/haha12358/clash-rules/tree/meta/geosite) 内找到。
+  ```
 
-- `applications` 已存放到 [meta分支](https://github.com/haha12358/clash-rules/tree/meta) 下的 [other](https://github.com/haha12358/clash-rules/tree/meta/other) 内。
+- [config.yaml](https://github.com/haha12358/clash-rules/blob/hidden/config.yaml) 为完整参考配置，可自行修改。
+- 其余规则集（`category-ads-all`、`icloud`、`apple`、`google` 等）见 [`meta` 分支](https://github.com/haha12358/clash-rules/tree/meta)：`geosite/`、`geoip/`、`asn/` 为规则集目录，`other/` 内含 `applications` 与 `fakeip-filter`。
