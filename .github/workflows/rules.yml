@@ -7,21 +7,34 @@ on:
     paths:
       - "rules/direct.yaml"
       - "rules/proxy.yaml"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: rules-mrs
+  cancel-in-progress: true
+
 jobs:
   convert:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - name: Checkout "hidden" branch
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
 
       - name: Download `mihomo core`
         run: |
-          mihomo_version=$(curl -fsSL https://api.github.com/repos/MetaCubeX/mihomo/releases | grep 'tag_name' | grep -v 'Alpha' | head -n 1 | sed -e 's/.*v/v/' -e 's/".*//')
-          curl -fsSL "https://github.com/MetaCubeX/mihomo/releases/download/${mihomo_version}/mihomo-linux-amd64-${mihomo_version}.gz" | gzip -d > ./mihomo
+          mihomo_version=$(curl -fsSL --retry 3 --retry-all-errors \
+            "https://api.github.com/repos/MetaCubeX/mihomo/releases?per_page=30" \
+            | jq -r '[.[] | select(.prerelease == false and (.tag_name | test("alpha"; "i") | not)) | .tag_name][0]')
+          test -n "$mihomo_version" || { echo "Failed to resolve mihomo version"; exit 1; }
+          curl -fsSL --retry 3 --retry-all-errors -o mihomo.gz \
+            "https://github.com/MetaCubeX/mihomo/releases/download/${mihomo_version}/mihomo-linux-amd64-${mihomo_version}.gz"
+          gzip -d mihomo.gz
           chmod +x ./mihomo
 
       - name: Convert yaml to mrs
@@ -39,8 +52,12 @@ jobs:
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add rules/direct.mrs || true
-          git add rules/proxy.mrs || true
-          git diff --cached --quiet || git commit -m "Update rules mrs"
-          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
-          git push origin HEAD:hidden
+          git add rules/direct.mrs 2>/dev/null || true
+          git add rules/proxy.mrs 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Update rules mrs"
+            git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+            git push origin HEAD:hidden
+          else
+            echo "No changes to commit, skip push"
+          fi
