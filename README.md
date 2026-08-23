@@ -1,5 +1,5 @@
-<div align="center" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin: 20px 0 8px;">
-    <img src="https://img.icons8.com/?size=96&id=P2AnGyiJxMpp&format=png" width="28" height="28" />
+<div align="center" style="margin: 20px 0 8px;">
+    <img src="https://img.icons8.com/?size=96&id=P2AnGyiJxMpp&format=png" width="26" height="26" align="middle" style="vertical-align: middle;" />
     <span style="font-size: 18px; font-weight: 600;">Android</span>
 </div>
 
@@ -22,8 +22,8 @@
     </tr>
 </table>
 
-<div align="center" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin: 20px 0 8px;">
-    <img src="https://img.icons8.com/?size=96&id=TuXN3JNUBGOT&format=png" width="28" height="28" />
+<div align="center" style="margin: 20px 0 8px;">
+    <img src="https://img.icons8.com/?size=96&id=TuXN3JNUBGOT&format=png" width="26" height="26" align="middle" style="vertical-align: middle;" />
     <span style="font-size: 18px; font-weight: 600;">Windows</span>
 </div>
 
