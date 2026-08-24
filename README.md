@@ -1,8 +1,8 @@
 # clash-rules
 
-Mihomo (Clash Meta) 规则集仓库，由 GitHub Actions 每日 06:30 自动生成并发布到 [`meta`](https://github.com/haha12358/clash-rules/tree/meta) 分支，可通过 `rule-providers` 直接订阅使用。
+![meta branch updated](https://img.shields.io/github/last-commit/haha12358/clash-rules/meta?label=meta%20branch%20updated)
 
-![Build](https://github.com/haha12358/clash-rules/actions/workflows/run.yml/badge.svg)
+Mihomo (Clash Meta) 规则集仓库，由 GitHub Actions 每日 `UTC 22:30` (`北京时间 6:30`) 自动生成并发布到 [`meta`](https://github.com/haha12358/clash-rules/tree/meta) 分支，可通过 `rule-providers` 直接订阅使用。
 
 ## 使用方式
 
@@ -23,9 +23,9 @@ rule-providers:
   geolocation-!cn: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/geolocation-!cn.mrs"}
   cn: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/cn.mrs"}
 
+  lancidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geoip/private.mrs"}
   telegramcidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geoip/telegram.mrs"}
   cncidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geoip/cn.mrs"}
-  lancidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geoip/private.mrs"}
 ```
 
 ### Rules
@@ -54,4 +54,4 @@ rules:
   ```
 
 - [config.yaml](https://github.com/haha12358/clash-rules/blob/hidden/config.yaml) 为完整参考配置，可自行修改。
-- 其余规则集（`category-ads-all`、`icloud`、`apple-cn`、`google-cn` 等）见 [`meta` 分支](https://github.com/haha12358/clash-rules/tree/meta)：`geosite/`、`geoip/`、`asn/` 为规则集目录，`other/` 内含 `applications` 与 `fakeip-filter`。
+- 其余规则集（`category-ads-all`、`icloud`、`apple-cn`、`google-cn` 等）见 [`meta分支`](https://github.com/haha12358/clash-rules/tree/meta)：`geosite/`、`geoip/`、`asn/` 为规则集目录，`other/` 内含 `applications` 与 `fakeip-filter`。
