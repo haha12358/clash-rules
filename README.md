@@ -54,4 +54,4 @@ rules:
   ```
 
 - [config.yaml](https://github.com/haha12358/clash-rules/blob/hidden/config.yaml) 为完整参考配置，可自行修改。
-- 其余规则集（`category-ads-all`、`icloud`、`apple`、`google` 等）见 [`meta` 分支](https://github.com/haha12358/clash-rules/tree/meta)：`geosite/`、`geoip/`、`asn/` 为规则集目录，`other/` 内含 `applications` 与 `fakeip-filter`。
+- 其余规则集（`category-ads-all`、`icloud`、`apple-cn`、`google-cn` 等）见 [`meta` 分支](https://github.com/haha12358/clash-rules/tree/meta)：`geosite/`、`geoip/`、`asn/` 为规则集目录，`other/` 内含 `applications` 与 `fakeip-filter`。
