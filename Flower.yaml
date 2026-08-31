@@ -1,0 +1,130 @@
+proxy-providers:
+  花云:
+    url: ""
+    type: http
+    interval: 0
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+    proxy: ➡️ 直连
+
+mixed-port: 7890
+allow-lan: false
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+log-level: info
+keep-alive-idle: 600
+keep-alive-interval: 15
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "Mijia Cloud"
+    - "+.push.apple.com"
+
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack: ["any:53", "tcp://any:53"]
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+
+dns:
+  enable: true
+  cache-algorithm: arc
+  listen: 0.0.0.0:1053
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - "rule-set:fakeip-filter"
+  default-nameserver:
+    - tls://223.5.5.5
+    - tls://1.12.12.12
+  proxy-server-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  nameserver:
+    - 'https://8.8.8.8/dns-query#😄 低倍率&ecs=218.201.4.0/24&ecs-override=true'
+
+proxy-group-anchor:
+  hk: &hk "(?i)香港|hk|hong ?kong"
+  sg: &sg "(?i)新加坡|sg|singapore"
+  jp: &jp "(?i)日本|jp|japan"
+  tw: &tw "(?i)台湾|tw|taiwan"
+  us: &us "(?i)美国|us|usa|united ?states|america"
+  url-test: &url-test {type: url-test, include-all: true, hidden: true, tolerance: 20, interval: 300}
+
+proxy-groups:
+  - {name: '🚀 默认', type: select, proxies: ['🇯🇵 日本', '🇭🇰 香港', '🇸🇬 新加坡', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部']}
+  - {name: '🤖 AI', type: select, include-all: true, proxies: ['🚀 默认'], filter: "高级"}
+  - {name: '🎬 娱乐', type: select, proxies: ['😄 低倍率', '🚀 默认']}
+  - {name: '🇯🇵 日本', type: select, include-all: true, proxies: ['♻️ 日本自动'], filter: *jp}
+  - {name: '🇭🇰 香港', type: select, include-all: true, proxies: ['♻️ 香港自动'], filter: *hk}
+  - {name: '🇸🇬 新加坡', type: select, include-all: true, proxies: ['♻️ 新加坡自动'], filter: *sg}
+  - {name: '🇨🇳 台湾', type: select, include-all: true, proxies: ['♻️ 台湾自动'], filter: *tw}
+  - {name: '🇺🇸 美国', type: select, include-all: true, proxies: ['♻️ 美国自动'], filter: *us}
+  - {name: '🇺🇳 全部', type: select, include-all: true, proxies: ['♻️ 自动选择']}
+  - {name: '🐟 漏网之鱼', type: select, proxies: ['😄 低倍率', '🚀 默认']}
+  - {name: '😄 低倍率', type: select, include-all: true, filter: "实验"}
+  - {name: '➡️ 直连', type: select, hidden: true, proxies: [DIRECT]}
+  - {name: '🏠 局域网', type: select, hidden: true, proxies: [DIRECT]}
+  - {name: '🚫 广告', type: select, hidden: true, proxies: [REJECT]}
+  - {name: '♻️ 香港自动', <<: *url-test, filter: *hk}
+  - {name: '♻️ 新加坡自动', <<: *url-test, filter: *sg}
+  - {name: '♻️ 日本自动', <<: *url-test, filter: *jp}
+  - {name: '♻️ 台湾自动', <<: *url-test, filter: *tw}
+  - {name: '♻️ 美国自动', <<: *url-test, filter: *us}
+  - {name: '♻️ 自动选择', <<: *url-test}
+
+rule-anchor:
+  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
+  class: &class {type: http, interval: 86400, behavior: classical, format: yaml}
+
+rule-providers: 
+  fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/fakeip-filter.mrs"}
+  private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/private.mrs"}
+  anti-AD: {<<: *domain, url: "https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/mihomo.mrs"}
+  direct: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/rules/direct.mrs"}
+  ai: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-ai-!cn.mrs"}
+  entertainment: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-entertainment.mrs"}
+  google: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/google.mrs"}
+  cn: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/cn.mrs"}
+  geolocation-!cn: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/geolocation-!cn.mrs"}
+
+  telegramcidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geoip/telegram.mrs"}
+  cncidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geoip/cn.mrs"}
+  lancidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geoip/private.mrs"}
+
+rules:
+  - RULE-SET,private,🏠 局域网
+  - RULE-SET,anti-AD,🚫 广告
+  - RULE-SET,direct,➡️ 直连
+  - RULE-SET,ai,🤖 AI
+  - RULE-SET,entertainment,🎬 娱乐
+  - RULE-SET,google,🚀 默认
+  - RULE-SET,cn,➡️ 直连
+  - RULE-SET,geolocation-!cn,🚀 默认
+  - RULE-SET,lancidr,🏠 局域网,no-resolve
+  - RULE-SET,telegramcidr,🚀 默认,no-resolve
+  - RULE-SET,cncidr,➡️ 直连
+  - MATCH,🐟 漏网之鱼
