@@ -75,13 +75,16 @@ jobs:
           curl -fsSL --retry 3 --retry-all-errors \
             -o fakeip-filter.list "https://raw.githubusercontent.com/juewuy/ShellCrash/dev/public/fake_ip_filter.list" &
           pids+=($!)
+          curl -fsSL --retry 3 --retry-all-errors \
+            -o pro.txt "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/pro.txt" &
+          pids+=($!)
           for p in "${pids[@]}"; do wait "$p" || exit 1; done
           gzip -d mihomo.gz
           chmod +x ./mihomo
-          for f in mihomo geoip.dat geosite.dat GeoLite2-ASN.mmdb fakeip-filter.list; do
+          for f in mihomo geoip.dat geosite.dat GeoLite2-ASN.mmdb fakeip-filter.list pro.txt; do
             test -s "$f" || { echo "ERROR: $f is missing or empty"; exit 1; }
           done
-          ls -lh mihomo geoip.dat geosite.dat GeoLite2-ASN.mmdb fakeip-filter.list
+          ls -lh mihomo geoip.dat geosite.dat GeoLite2-ASN.mmdb fakeip-filter.list pro.txt
 
       - name: Convert geosite / geoip / ASN to meta rule-sets (parallel)
         run: |
@@ -104,11 +107,18 @@ jobs:
       - name: Generate fakeip-filter.mrs
         run: ./mihomo convert-ruleset domain text fakeip-filter.list fakeip-filter.mrs
 
+      - name: Generate hagezi-pro rule-set
+        run: |
+          perl -ne '/^\|\|([-_0-9a-zA-Z]+(\.[-_0-9a-zA-Z]+){1,64})\^$/ && print "$1\n"' pro.txt \
+            | perl -ne 'print if not /^[0-9]{1,3}(\.[0-9]{1,3}){3}$/' > hagezi-pro.list
+          test -s hagezi-pro.list
+          ./mihomo convert-ruleset domain text hagezi-pro.list hagezi-pro.mrs
+
       - name: Assemble publish-meta directory
         run: |
           mkdir -p publish-meta/other
           cp -r meta-out/geosite meta-out/geoip meta-out/asn publish-meta/
-          cp applications.yaml applications.list fakeip-filter.list fakeip-filter.mrs publish-meta/other/
+          cp applications.yaml applications.list fakeip-filter.list fakeip-filter.mrs hagezi-pro.list hagezi-pro.mrs publish-meta/other/
           echo "Artifacts: $(find publish-meta -type f | wc -l) files"
 
       - name: Force push assets to "meta" branch
