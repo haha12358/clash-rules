@@ -103,7 +103,7 @@ rule-anchor:
 rule-providers: 
   fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/fakeip-filter.mrs"}
   private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/private.mrs"}
-  anti-AD: {<<: *domain, url: "https://raw.githubusercontent.com/privacy-protection-tools/anti-ad.github.io/master/docs/mihomo.mrs"}
+  hagezi: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/hagezi-pro.mrs"}
   direct: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/rules/direct.mrs"}
   ai: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-ai-!cn.mrs"}
   entertainment: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-entertainment.mrs"}
@@ -117,7 +117,7 @@ rule-providers:
 
 rules:
   - RULE-SET,private,🏠 局域网
-  - RULE-SET,anti-AD,🚫 广告
+  - RULE-SET,hagezi,🚫 广告
   - RULE-SET,direct,➡️ 直连
   - RULE-SET,ai,🤖 AI
   - RULE-SET,entertainment,🎬 娱乐
