@@ -76,10 +76,10 @@ jobs:
             -o fakeip-filter.list "https://raw.githubusercontent.com/juewuy/ShellCrash/dev/public/fake_ip_filter.list" &
           pids+=($!)
           curl -fsSL --retry 3 --retry-all-errors \
-            -o pro.txt "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/pro.txt" &
+            -o pro.txt "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt" &
           pids+=($!)
           curl -fsSL --retry 3 --retry-all-errors \
-            -o pro.mini.txt "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/pro.mini.txt" &
+            -o pro.mini.txt "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.mini.txt" &
           pids+=($!)
           for p in "${pids[@]}"; do wait "$p" || exit 1; done
           gzip -d mihomo.gz
