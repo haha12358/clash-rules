@@ -54,14 +54,13 @@ dns:
   fake-ip-filter:
     - "rule-set:fakeip-filter"
   default-nameserver:
-    - tls://223.5.5.5
-    - tls://1.12.12.12
+    - 223.5.5.5
   proxy-server-nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
   direct-nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
+    - 223.5.5.5
+    - 119.29.29.29
   nameserver:
     - 'https://8.8.8.8/dns-query#😄 低倍率&ecs=218.201.4.0/24&ecs-override=true'
 
