@@ -5,8 +5,8 @@ on:
     branches:
       - hidden
     paths:
-      - "rules/direct.yaml"
-      - "rules/proxy.yaml"
+      - "rules/direct.list"
+      - "rules/proxy.list"
   workflow_dispatch:
 
 permissions:
@@ -37,13 +37,13 @@ jobs:
           gzip -d mihomo.gz
           chmod +x ./mihomo
 
-      - name: Convert yaml to mrs
+      - name: Convert list to mrs
         run: |
           for f in direct proxy; do
-            if grep -qE '^[[:space:]]*-[[:space:]]+' "rules/$f.yaml"; then
-              ./mihomo convert-ruleset domain yaml "rules/$f.yaml" "rules/$f.mrs"
+            if grep -qE '^[[:space:]]*[^#[:space:]]' "rules/$f.list"; then
+              ./mihomo convert-ruleset domain text "rules/$f.list" "rules/$f.mrs"
             else
-              echo "rules/$f.yaml is empty, skip conversion"
+              echo "rules/$f.list is empty, skip conversion"
               rm -f "rules/$f.mrs"
             fi
           done
