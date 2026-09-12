@@ -14,7 +14,7 @@ allow-lan: false
 ipv6: false
 unified-delay: true
 tcp-concurrent: true
-log-level: info
+log-level: warning
 profile:
   store-selected: true
   store-fake-ip: true
@@ -40,6 +40,7 @@ tun:
   auto-route: true
   auto-redirect: true
   auto-detect-interface: true
+  strict-route: true
 
 hosts:
   dns.alidns.com: [223.5.5.5, 223.6.6.6]
