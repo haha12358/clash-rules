@@ -33,10 +33,9 @@ ntp:
 
 tun:
   enable: true
-  stack: mips
+  stack: mixed
   dns-hijack: ["any:53", "tcp://any:53"]
   auto-route: true
-  strict-route: true
   auto-redirect: true
   auto-detect-interface: true
 
@@ -65,8 +64,6 @@ dns:
   proxy-server-nameserver: *chinaDNS
   direct-nameserver: *chinaDNS
   nameserver: *foreignDNS
-  nameserver-policy:
-    "rule-set:cn": *chinaDNS
 
 proxy-group-anchor:
   hk: &hk "(?i)香港|hk|hong ?kong"
@@ -75,7 +72,7 @@ proxy-group-anchor:
   tw: &tw "(?i)台湾|tw|taiwan"
   us: &us "(?i)美国|us|usa|united ?states|america"
   select: &select {type: select, interval: 600, timeout: 3000, max-failed-times: 3, empty-fallback: REJECT, url: 'https://www.gstatic.com/generate_204', lazy: true}
-  url-test: &url-test {type: url-test, interval: 600, timeout: 3000, max-failed-times: 3, empty-fallback: REJECT, url: 'https://www.apple.com/library/test/success.html', lazy: true, tolerance: 50, include-all: true, exclude-type: 'DIRECT', hidden: true}
+  url-test: &url-test {type: url-test, interval: 600, timeout: 3000, max-failed-times: 3, empty-fallback: REJECT, url: 'https://www.gstatic.com/generate_204', lazy: true, tolerance: 50, include-all: true, exclude-type: 'DIRECT', hidden: true}
 
 proxy-groups:
   - {name: '🚀 默认', <<: *select, proxies: ['🇯🇵 日本', '🇭🇰 香港', '🇸🇬 新加坡', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部']}
