@@ -2,7 +2,7 @@ proxy-providers:
   airport:
     url: ""
     type: http
-    interval: 0
+    interval: 86400
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
