@@ -43,11 +43,12 @@ hosts:
   dns.alidns.com: [223.5.5.5, 223.6.6.6]
   doh.pub: [1.12.12.12, 120.53.53.53]
   dns.google: [8.8.8.8, 8.8.4.4]
+  cloudflare-dns.com: [104.16.248.249, 104.16.249.249]
 
 dns-anchor:
   chinaDNS: &chinaDNS ['https://dns.alidns.com/dns-query#DIRECT', 'https://doh.pub/dns-query#DIRECT']
-  foreignDNS: &foreignDNS ['https://dns.google/dns-query#😄 低倍率']
-  defaultDNS: &defaultDNS ['tls://223.5.5.5#DIRECT']
+  foreignDNS: &foreignDNS ['https://dns.google/dns-query#😄 低倍率', 'https://cloudflare-dns.com/dns-query#😄 低倍率']
+  defaultDNS: &defaultDNS ['https://223.5.5.5/dns-query#DIRECT', 'https://1.12.12.12/dns-query#DIRECT']
 
 dns:
   enable: true
