@@ -9,16 +9,15 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 600
       lazy: true
+    override:
+      udp: true
 
 mixed-port: 7890
 allow-lan: false
 ipv6: false
-mode: rule
-log-level: info
 unified-delay: true
 tcp-concurrent: true
 keep-alive-interval: 60
-find-process-mode: strict
 
 profile:
   store-selected: true
@@ -27,17 +26,17 @@ profile:
 ntp:
   enable: true
   write-to-system: false
-  server: ntp.aliyun.com
+  server: 'ntp.aliyun.com'
   port: 123
   interval: 60
 
 tun:
   enable: true
-  stack: mixed
-  dns-hijack: ["any:53", "tcp://any:53"]
+  stack: mips
   auto-route: true
   auto-redirect: true
   auto-detect-interface: true
+  dns-hijack: ["any:53", "tcp://any:53"]
 
 hosts:
   dns.alidns.com: [223.5.5.5, 223.6.6.6]
@@ -47,7 +46,7 @@ hosts:
 
 dns-anchor:
   chinaDNS: &chinaDNS ['https://dns.alidns.com/dns-query#DIRECT', 'https://doh.pub/dns-query#DIRECT']
-  foreignDNS: &foreignDNS ['https://dns.google/dns-query#😄 低倍率', 'https://cloudflare-dns.com/dns-query#😄 低倍率']
+  foreignDNS: &foreignDNS ['https://dns.google/dns-query#😊低倍率', 'https://cloudflare-dns.com/dns-query#😊低倍率']
   defaultDNS: &defaultDNS ['https://223.5.5.5/dns-query#DIRECT', 'https://1.12.12.12/dns-query#DIRECT']
 
 dns:
@@ -58,9 +57,8 @@ dns:
   use-system-hosts: true
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
-  fake-ip-filter-mode: blacklist
   fake-ip-filter:
-    - "rule-set:fakeip-filter"
+    - 'rule-set:fakeip-filter'
   default-nameserver: *defaultDNS
   proxy-server-nameserver: *chinaDNS
   direct-nameserver: *chinaDNS
@@ -72,34 +70,54 @@ proxy-group-anchor:
   jp: &jp "(?i)日本|jp|japan"
   tw: &tw "(?i)台湾|tw|taiwan"
   us: &us "(?i)美国|us|usa|united ?states|america"
-  select: &select {type: select, interval: 600, timeout: 3000, max-failed-times: 3, empty-fallback: REJECT, url: 'https://www.gstatic.com/generate_204', lazy: true}
-  url-test: &url-test {type: url-test, interval: 600, timeout: 3000, max-failed-times: 3, empty-fallback: REJECT, url: 'https://www.gstatic.com/generate_204', lazy: true, tolerance: 50, include-all: true, exclude-type: 'DIRECT', hidden: true}
+  select: &select {
+    type: select,
+    interval: 600,
+    timeout: 3000,
+    max-failed-times: 3,
+    empty-fallback: REJECT,
+    url: 'https://www.gstatic.com/generate_204',
+    lazy: true
+  }
+  url-test: &url-test {
+    type: url-test,
+    interval: 600,
+    timeout: 3000,
+    max-failed-times: 3,
+    empty-fallback: REJECT,
+    url: 'https://www.gstatic.com/generate_204',
+    lazy: true,
+    tolerance: 50,
+    include-all: true,
+    exclude-type: 'DIRECT',
+    hidden: true
+  }
 
 proxy-groups:
-  - {name: '🚀 默认', <<: *select, proxies: ['🇯🇵 日本', '🇭🇰 香港', '🇸🇬 新加坡', '🇨🇳 台湾', '🇺🇸 美国', '🇺🇳 全部']}
-  - {name: '🤖 AI', <<: *select, include-all: true, proxies: ['🚀 默认'], filter: "高级"}
-  - {name: '🎬 娱乐', <<: *select, proxies: ['😄 低倍率', '🚀 默认']}
-  - {name: '🇯🇵 日本', <<: *select, include-all: true, proxies: ['♻️ 日本自动'], filter: *jp}
-  - {name: '🇭🇰 香港', <<: *select, include-all: true, proxies: ['♻️ 香港自动'], filter: *hk}
-  - {name: '🇸🇬 新加坡', <<: *select, include-all: true, proxies: ['♻️ 新加坡自动'], filter: *sg}
-  - {name: '🇨🇳 台湾', <<: *select, include-all: true, proxies: ['♻️ 台湾自动'], filter: *tw}
-  - {name: '🇺🇸 美国', <<: *select, include-all: true, proxies: ['♻️ 美国自动'], filter: *us}
-  - {name: '🇺🇳 全部', <<: *select, include-all: true, proxies: ['♻️ 自动选择']}
-  - {name: '🐟 漏网之鱼', <<: *select, proxies: ['😄 低倍率', '🚀 默认']}
-  - {name: '😄 低倍率', <<: *select, include-all: true, filter: "实验"}
-  - {name: '➡️ 直连', <<: *select, hidden: true, proxies: [DIRECT]}
-  - {name: '🏠 局域网', <<: *select, hidden: true, proxies: [DIRECT]}
-  - {name: '🚫 广告', <<: *select, hidden: true, proxies: [REJECT]}
-  - {name: '♻️ 香港自动', <<: *url-test, filter: *hk}
-  - {name: '♻️ 新加坡自动', <<: *url-test, filter: *sg}
-  - {name: '♻️ 日本自动', <<: *url-test, filter: *jp}
-  - {name: '♻️ 台湾自动', <<: *url-test, filter: *tw}
-  - {name: '♻️ 美国自动', <<: *url-test, filter: *us}
-  - {name: '♻️ 自动选择', <<: *url-test}
+  - {name: '🚀默认', <<: *select, proxies: ['🇯🇵日本', '🇭🇰香港', '🇸🇬新加坡', '🇨🇳台湾', '🇺🇸美国', '🇺🇳全部']}
+  - {name: '🤖AI', <<: *select, include-all: true, proxies: ['🚀默认'], filter: "高级"}
+  - {name: '🎬娱乐', <<: *select, proxies: ['😊低倍率', '🚀默认']}
+  - {name: '🇯🇵日本', <<: *select, include-all: true, proxies: ['♻️日本自动'], filter: *jp}
+  - {name: '🇭🇰香港', <<: *select, include-all: true, proxies: ['♻️香港自动'], filter: *hk}
+  - {name: '🇸🇬新加坡', <<: *select, include-all: true, proxies: ['♻️新加坡自动'], filter: *sg}
+  - {name: '🇨🇳台湾', <<: *select, include-all: true, proxies: ['♻️台湾自动'], filter: *tw}
+  - {name: '🇺🇸美国', <<: *select, include-all: true, proxies: ['♻️美国自动'], filter: *us}
+  - {name: '🇺🇳全部', <<: *select, include-all: true, proxies: ['♻️自动选择']}
+  - {name: '🐟漏网之鱼', <<: *select, proxies: ['😊低倍率', '🚀默认']}
+  - {name: '😊低倍率', <<: *select, include-all: true, filter: "实验"}
+  - {name: '➡️直连', <<: *select, hidden: true, proxies: [DIRECT]}
+  - {name: '🏠局域网', <<: *select, hidden: true, proxies: [DIRECT]}
+  - {name: '🚫广告', <<: *select, proxies: [REJECT, REJECT-DROP, PASS]}
+  - {name: '♻️香港自动', <<: *url-test, filter: *hk}
+  - {name: '♻️新加坡自动', <<: *url-test, filter: *sg}
+  - {name: '♻️日本自动', <<: *url-test, filter: *jp}
+  - {name: '♻️台湾自动', <<: *url-test, filter: *tw}
+  - {name: '♻️美国自动', <<: *url-test, filter: *us}
+  - {name: '♻️自动选择', <<: *url-test}
 
 rule-anchor:
-  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
-  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
+  ip: &ip {type: http, format: mrs, interval: 86400, behavior: ipcidr}
+  domain: &domain {type: http, format: mrs, interval: 86400, behavior: domain}
 
 rule-providers: 
   fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/fakeip-filter.mrs"}
@@ -117,15 +135,15 @@ rule-providers:
   lancidr: {<<: *ip, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geoip/private.mrs"}
 
 rules:
-  - RULE-SET,private,🏠 局域网
-  - RULE-SET,hagezi,🚫 广告
-  - RULE-SET,direct,➡️ 直连
-  - RULE-SET,ai,🤖 AI
-  - RULE-SET,entertainment,🎬 娱乐
-  - RULE-SET,google,🚀 默认
-  - RULE-SET,cn,➡️ 直连
-  - RULE-SET,geolocation-!cn,🚀 默认
-  - RULE-SET,lancidr,🏠 局域网,no-resolve
-  - RULE-SET,telegramcidr,🚀 默认,no-resolve
-  - RULE-SET,cncidr,➡️ 直连
-  - MATCH,🐟 漏网之鱼
+  - RULE-SET,private,🏠局域网
+  - RULE-SET,hagezi,🚫广告
+  - RULE-SET,direct,➡️直连
+  - RULE-SET,ai,🤖AI
+  - RULE-SET,entertainment,🎬娱乐
+  - RULE-SET,google,🚀默认
+  - RULE-SET,cn,➡️直连
+  - RULE-SET,geolocation-!cn,🚀默认
+  - RULE-SET,lancidr,🏠局域网,no-resolve
+  - RULE-SET,telegramcidr,🚀默认,no-resolve
+  - RULE-SET,cncidr,➡️直连
+  - MATCH,🐟漏网之鱼
