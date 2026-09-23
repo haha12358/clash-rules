@@ -26,7 +26,7 @@ profile:
 ntp:
   enable: true
   write-to-system: false
-  server: 'ntp.aliyun.com'
+  server: ntp.aliyun.com
   port: 123
   interval: 60
 
@@ -65,11 +65,11 @@ dns:
   nameserver: *foreignDNS
 
 proxy-group-anchor:
-  hk: &hk "(?i)香港|hk|hong ?kong"
-  sg: &sg "(?i)新加坡|sg|singapore"
-  jp: &jp "(?i)日本|jp|japan"
-  tw: &tw "(?i)台湾|tw|taiwan"
-  us: &us "(?i)美国|us|usa|united ?states|america"
+  hk: &hk "🇭🇰|香港"
+  sg: &sg "🇸🇬|新加坡"
+  jp: &jp "🇯🇵|日本"
+  tw: &tw "🇨🇳|台湾"
+  us: &us "🇺🇸|美国"
   select: &select {
     type: select,
     interval: 600,
