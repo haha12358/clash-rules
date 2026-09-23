@@ -169,7 +169,9 @@ function createRuleProviders() {
 
 function main(config) {
   // 覆写机场配置时使用原有代理节点。
-  const proxies = Array.isArray(config.proxies) ? config.proxies : [];
+  const proxies = Array.isArray(config.proxies)
+    ? config.proxies.map((proxy) => ({ ...proxy, udp: true }))
+    : [];
 
   if (proxies.length === 0) {
     throw new Error('配置文件中未找到任何代理节点，请使用机场提供的配置文件进行覆写');
