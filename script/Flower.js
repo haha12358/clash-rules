@@ -12,6 +12,7 @@ const ruleOptionsEnable = {
   娱乐: true, // 娱乐分流
   Google: true, // Google 分流
   AdBlock: true, // 广告拦截
+  屏蔽国外QUIC: true, // 是否屏蔽国外 QUIC 流量
   生成地区自动选择组: true, // 是否生成各地区自动选择组
   隐藏地区手动选择组: false, // 是否隐藏地区手动选择组
   生成低倍率组: true, // 是否生成“😊 低倍率”组
@@ -169,9 +170,7 @@ function createRuleProviders() {
 
 function main(config) {
   // 覆写机场配置时使用原有代理节点。
-  const proxies = Array.isArray(config.proxies)
-    ? config.proxies.map((proxy) => ({ ...proxy, udp: true }))
-    : [];
+  const proxies = Array.isArray(config.proxies) ? config.proxies : [];
 
   if (proxies.length === 0) {
     throw new Error('配置文件中未找到任何代理节点，请使用机场提供的配置文件进行覆写');
@@ -225,6 +224,9 @@ function main(config) {
     'rule-providers': createRuleProviders(),
     rules: [
       'RULE-SET,private,🏠 局域网',
+      ...(ruleOptionsEnable.屏蔽国外QUIC
+        ? ['AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((OR,((RULE-SET,cn),(RULE-SET,cncidr,no-resolve)))))),REJECT']
+        : []),
       ...(ruleOptionsEnable.AdBlock ? ['RULE-SET,hagezi,🚫 广告'] : []),
       'RULE-SET,direct,➡️ 直连',
       ...(ruleOptionsEnable.AI ? ['RULE-SET,ai,🤖 AI'] : []),

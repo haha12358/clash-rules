@@ -9,8 +9,6 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 600
       lazy: true
-    override:
-      udp: true
 
 mixed-port: 7890
 allow-lan: false
@@ -122,7 +120,7 @@ rule-anchor:
 rule-providers: 
   fakeip-filter: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/fakeip-filter.mrs"}
   private: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/private.mrs"}
-  hagezi: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/hagezi-pro.mrs"}
+  hagezi: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/other/hagezi-pro.mini.mrs"}
   direct: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/hidden/rules/direct.mrs"}
   ai: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-ai-!cn.mrs"}
   entertainment: {<<: *domain, url: "https://raw.githubusercontent.com/haha12358/clash-rules/meta/geosite/category-entertainment.mrs"}
@@ -136,6 +134,7 @@ rule-providers:
 
 rules:
   - RULE-SET,private,🏠 局域网
+  - AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((OR,((RULE-SET,cn),(RULE-SET,cncidr,no-resolve)))))),REJECT
   - RULE-SET,hagezi,🚫 广告
   - RULE-SET,direct,➡️ 直连
   - RULE-SET,ai,🤖 AI
