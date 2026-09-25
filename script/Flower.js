@@ -148,7 +148,7 @@ function createRuleProviders() {
     'fakeip-filter': createRuleProvider(domainProviderOption, 'meta/other/fakeip-filter.mrs'),
     private: createRuleProvider(domainProviderOption, 'meta/geosite/private.mrs'),
     ...(ruleOptionsEnable.AdBlock && {
-      hagezi: createRuleProvider(domainProviderOption, 'meta/other/hagezi-pro.mini.mrs'),
+      hagezi: createRuleProvider(domainProviderOption, 'meta/other/hagezi-pro.mrs'),
     }),
     direct: createRuleProvider(domainProviderOption, 'hidden/rules/direct.mrs'),
     ...(ruleOptionsEnable.AI && {
@@ -205,6 +205,8 @@ function main(config) {
       'doh.pub': ['1.12.12.12', '120.53.53.53'],
       'dns.google': ['8.8.8.8', '8.8.4.4'],
       'cloudflare-dns.com': ['104.16.248.249', '104.16.249.249'],
+      // 合并输入配置的 hosts；同名项以输入配置为准。
+      ...(config.hosts && typeof config.hosts === 'object' && !Array.isArray(config.hosts) ? config.hosts : {}),
     },
     dns: {
       enable: true,
@@ -224,10 +226,10 @@ function main(config) {
     'rule-providers': createRuleProviders(),
     rules: [
       'RULE-SET,private,🏠 局域网',
+      ...(ruleOptionsEnable.AdBlock ? ['RULE-SET,hagezi,🚫 广告'] : []),
       ...(ruleOptionsEnable.屏蔽国外QUIC
         ? ['AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((OR,((RULE-SET,cn),(RULE-SET,cncidr,no-resolve)))))),REJECT']
         : []),
-      ...(ruleOptionsEnable.AdBlock ? ['RULE-SET,hagezi,🚫 广告'] : []),
       'RULE-SET,direct,➡️ 直连',
       ...(ruleOptionsEnable.AI ? ['RULE-SET,ai,🤖 AI'] : []),
       ...(ruleOptionsEnable.娱乐 ? ['RULE-SET,entertainment,🎬 娱乐'] : []),
