@@ -9,6 +9,8 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 600
       lazy: true
+    override:
+      udp: true
 
 mixed-port: 7890
 allow-lan: false
