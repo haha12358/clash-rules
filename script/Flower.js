@@ -218,7 +218,7 @@ function main(config) {
       'use-system-hosts': true,
       'enhanced-mode': 'fake-ip',
       'fake-ip-range': '198.18.0.1/16',
-      'fake-ip-filter': ['rule-set:fakeip-filter'],
+      'fake-ip-filter': ['rule-set:fakeip-filter', '+.apt-agent.org'],
       'default-nameserver': defaultDNS,
       'proxy-server-nameserver': chinaDNS,
       'direct-nameserver': chinaDNS,
